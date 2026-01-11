@@ -23,11 +23,13 @@
 
 static void test_task_idle(void)
 {
+    KPRINTF_OK("PRINT FROM IDLE");
     return;
 }
 
 static void test_task_idle2(void)
 {
+    KPRINTF_OK("PRINT FROM IDLE 2");
     return;
 }
 
@@ -54,12 +56,13 @@ kmain(void)
     task_t *t1 = ktask_create(test_task_idle);
     task_t *t2 = ktask_create(test_task_idle2);
 
-    if (kscheduler_add_task(t1) == OK_TRUE) {
+    if (kscheduler_add_task(t1) == OK_TRUE)
         KPRINTF_OK("Task 1 added.");
-    }
-    if (kscheduler_add_task(t2) == OK_TRUE) {
+    if (kscheduler_add_task(t2) == OK_TRUE)
         KPRINTF_OK("Task 2 added.");
-    }
+
+    kscheduler_run_once();
+    kscheduler_run_once();
 
     kshell_start();
 
