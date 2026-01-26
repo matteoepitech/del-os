@@ -5,6 +5,8 @@
 ** Scheduler task header file
 */
 
+#include <kernel/interruption/isr.h>
+#include <kernel/scheduler/process.h>
 #include <defines.h>
 #include <types.h>
 
@@ -28,7 +30,9 @@ typedef enum {
  *        Contains some informations for the context switching.
  */
 typedef struct task_s {
-    void (*_entry)(void); // WARN: Temporary
+    isr_registers_t _ctx;
+    void *_stack_ptr;
+    size_t _stack_size;
     task_state_t _state;
     struct task_s *_next;
 } task_t;

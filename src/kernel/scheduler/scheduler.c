@@ -7,6 +7,8 @@
 
 #include <kernel/scheduler/scheduler.h>
 #include <kernel/memory/api/kmalloc.h>
+#include <kernel/scheduler/context.h>
+#include <utils/kstdlib/kmemory.h>
 
 /* @brief This variable is the head/tail of the task */
 task_t *ktask_head = NULL;
@@ -44,7 +46,6 @@ kscheduler_add_task(task_t *task)
     if (ktask_head == NULL) {
         ktask_head = task;
         ktask_tail = task;
-        ktask_current = task;
     } else {
         ktask_tail->_next = task;
         ktask_tail = task;
@@ -64,36 +65,51 @@ kscheduler_get_current_task(void)
 }
 
 /**
- * @brief Run the current task one time.
+ * @brief Get the next task but not execute it.
  *
- * @return OK_TRUE if worked, KO_FALSE otherwise.
+ * @return The task.
  */
-bool32_t
-kscheduler_run_once(void)
+task_t *
+kscheduler_pick_next(void)
 {
     if (ktask_current == NULL) {
-        return KO_FALSE;
+        return NULL;
     }
-    ktask_current->_state = KTASK_RUNNING;
-    ktask_current->_entry();
-    kscheduler_go_next();
-    return OK_TRUE;
+    if (ktask_current->_next == NULL) {
+        return ktask_head;
+    }
+    return ktask_current->_next;
 }
 
 /**
- * @brief Go to the next task planned by the scheduler.
- *
- * @return OK_TRUE if worked, KO_FALSE otherwise.
+ * @brief Do a tick on the scheduler of the kernel.
  */
 bool32_t
-kscheduler_go_next(void)
+kscheduler_tick(isr_registers_t *regs)
 {
-    if (ktask_current->_next == NULL) {
-        ktask_current = ktask_head;
-        return OK_TRUE;
-    } else {
-        ktask_current = ktask_current->_next;
-        return OK_TRUE;
+    task_t *next = NULL;
+
+    if (regs == NULL || ktask_current == NULL) {
+        return KO_FALSE;
     }
-    return KO_FALSE;
+    kmemcpy(&ktask_current->_ctx, regs, sizeof(isr_registers_t));
+    next = kscheduler_pick_next();
+    if (next == NULL || next == ktask_current) {
+        return KO_FALSE;
+    }
+    ktask_current = next;
+    kcontext_switch_from_isr(&next->_ctx);
+    __builtin_unreachable();
+}
+
+void
+kscheduler_start(void)
+{
+    if (ktask_head == NULL) {
+        return;
+    }
+    ktask_current = ktask_head;
+    ktask_current->_state = KTASK_RUNNING;
+    kcontext_enter_first(&ktask_current->_ctx);
+    __builtin_unreachable();
 }

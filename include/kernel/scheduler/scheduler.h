@@ -45,19 +45,23 @@ task_t *
 kscheduler_get_current_task(void);
 
 /**
- * @brief Run the current task one time.
+ * @brief Get the next task but not execute it.
  *
- * @return OK_TRUE if worked, KO_FALSE otherwise.
+ * @return The task.
  */
-bool32_t
-kscheduler_run_once(void);
+task_t *
+kscheduler_pick_next(void);
 
 /**
- * @brief Go to the next task planned by the scheduler.
- *
- * @return OK_TRUE if worked, KO_FALSE otherwise.
+ * @brief Do a tick on the scheduler of the kernel.
  */
 bool32_t
-kscheduler_go_next(void);
+kscheduler_tick(isr_registers_t *regs);
+
+/**
+ * @brief Start scheduler and jump to the first task context.
+ */
+void
+kscheduler_start(void);
 
 #endif /* ifndef KERNEL_SCHEDULER_H_ */

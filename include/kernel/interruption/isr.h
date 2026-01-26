@@ -30,13 +30,14 @@
 
 /**
  * @brief Register structure passed by the CPU when interruption.
+ * Order matches the stack layout produced by irq_stubs.s
  *        -...
  */
 typedef struct isr_registers_s {
-    uint32_t _ds;
-    uint32_t _es;
-    uint32_t _fs;
     uint32_t _gs;
+    uint32_t _fs;
+    uint32_t _es;
+    uint32_t _ds;
     uint32_t _edi;
     uint32_t _esi;
     uint32_t _ebp;
@@ -50,8 +51,6 @@ typedef struct isr_registers_s {
     uint32_t _eip;
     uint32_t _cs;
     uint32_t _eflags;
-    uint32_t _useresp;
-    uint32_t _ss;
 } isr_registers_t;
 
 /**

@@ -23,13 +23,15 @@
 
 static void test_task_idle(void)
 {
-    KPRINTF_OK("PRINT FROM IDLE");
+    while (OK_TRUE)
+        KPRINTF_OK("PRINT FROM IDLE");
     return;
 }
 
 static void test_task_idle2(void)
 {
-    KPRINTF_OK("PRINT FROM IDLE 2");
+    while (OK_TRUE)
+        KPRINTF_OK("PRINT FROM IDLE 2");
     return;
 }
 
@@ -61,9 +63,7 @@ kmain(void)
     if (kscheduler_add_task(t2) == OK_TRUE)
         KPRINTF_OK("Task 2 added.");
 
-    kscheduler_run_once();
-    kscheduler_run_once();
-
+    kscheduler_start();
     kshell_start();
 
     /* Should never goes here for the moment */
