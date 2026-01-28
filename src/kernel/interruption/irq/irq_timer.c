@@ -6,6 +6,7 @@
 */
 
 #include <kernel/scheduler/scheduler.h>
+#include <kernel/scheduler/context.h>
 #include <kernel/interruption/isr.h>
 #include <kernel/interruption/pic.h>
 #include <kernel/interruption/pit.h>
@@ -28,7 +29,7 @@ irq_timer(isr_registers_t *regs)
         seconds_count++;
     }
     PIC_CALL_EOI();
-    if (ticks_count % 100 == 0) {
+    if (ticks_count % KERNEL_SCHEDULER_CONTEXT_TICKER == 0) {
         if (kscheduler_tick(regs) == OK_TRUE) {
             __builtin_unreachable();
         }

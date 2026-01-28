@@ -53,6 +53,13 @@ kshell_execute_command(uint32_t argc, char *argv[SHELL_ARGV_MAX_COUNT]);
 bool32_t
 kshell_start(void);
 
+/**
+ * @brief Start the shell using a task.
+ *        Used on the scheduler to perform multi-task.
+ */
+void
+kshell_start_task(void);
+
 /*
  * -- COMMANDS --
  */

@@ -17,6 +17,8 @@ extern task_t *ktask_head;
 extern task_t *ktask_tail;
 /* @brief This variable contains the current task executed on the CPU */
 extern task_t *ktask_current;
+/* @brief This variable say if the scheduler is running or not */
+extern bool32_t kscheduler_is_running;
 
 /**
  * @brief Initialize the scheduler stuff.
@@ -43,6 +45,14 @@ kscheduler_add_task(task_t *task);
  */
 task_t *
 kscheduler_get_current_task(void);
+
+/**
+ * @brief Run the current task one time.
+ *
+ * @return OK_TRUE if worked, KO_FALSE otherwise.
+ */
+bool32_t
+kscheduler_run_once(void);
 
 /**
  * @brief Get the next task but not execute it.

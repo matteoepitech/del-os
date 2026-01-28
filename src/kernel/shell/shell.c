@@ -146,3 +146,14 @@ kshell_start(void)
     }
     return OK_TRUE;
 }
+
+/**
+ * @brief Start the shell using a task.
+ *        Used on the scheduler to perform multi-task.
+ */
+void
+kshell_start_task(void)
+{
+    kshell_start();
+    return;
+}

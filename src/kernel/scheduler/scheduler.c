@@ -9,12 +9,16 @@
 #include <kernel/memory/api/kmalloc.h>
 #include <kernel/scheduler/context.h>
 #include <utils/kstdlib/kmemory.h>
+#include <kernel/shell/shell.h>
+#include <utils/misc/print.h>
 
 /* @brief This variable is the head/tail of the task */
 task_t *ktask_head = NULL;
 task_t *ktask_tail = NULL;
 /* @brief This variable contains the current task executed on the CPU */
 task_t *ktask_current = NULL;
+/* @brief This variable say if the scheduler is running or not */
+bool32_t kscheduler_is_running = KO_FALSE;
 
 /**
  * @brief Initialize the scheduler stuff.
@@ -49,6 +53,9 @@ kscheduler_add_task(task_t *task)
     } else {
         ktask_tail->_next = task;
         ktask_tail = task;
+    }
+    if (kscheduler_is_running == KO_FALSE) {
+        kscheduler_start();
     }
     return OK_TRUE;
 }
@@ -93,6 +100,7 @@ kscheduler_tick(isr_registers_t *regs)
         return KO_FALSE;
     }
     kmemcpy(&ktask_current->_ctx, regs, sizeof(isr_registers_t));
+    ktask_current->_ctx._esp = (uint32_t) regs + sizeof(isr_registers_t); // IDK WHY but it's working
     next = kscheduler_pick_next();
     if (next == NULL || next == ktask_current) {
         return KO_FALSE;
@@ -105,7 +113,7 @@ kscheduler_tick(isr_registers_t *regs)
 void
 kscheduler_start(void)
 {
-    if (ktask_head == NULL) {
+    if (ktask_head == NULL || kscheduler_is_running == OK_TRUE) {
         return;
     }
     ktask_current = ktask_head;
