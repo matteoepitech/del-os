@@ -120,6 +120,7 @@ kprocess_kernel_init(void)
     kernel_process->_main_thread->_process = kernel_process;
     kernel_process->_page_directory = kvmm_page_directory;
     kernel_process->_page_directory_phys = VIRT_TO_PHYS(kvmm_page_directory);
+    kprocess_set_name("ksystem", kernel_process);
     return kernel_process;
 }
 
