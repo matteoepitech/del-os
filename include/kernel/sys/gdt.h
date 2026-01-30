@@ -19,6 +19,18 @@
         #define KGDT_DATA_SELECTOR 0x10
     #endif /* ifndef KGDT_DATA_SELECTOR */
 
+    #ifndef KGDT_USER_CODE_SELECTOR
+        #define KGDT_USER_CODE_SELECTOR 0x1B
+    #endif /* ifndef KGDT_USER_CODE_SELECTOR */
+
+    #ifndef KGDT_USER_DATA_SELECTOR
+        #define KGDT_USER_DATA_SELECTOR 0x23
+    #endif /* ifndef KGDT_USER_DATA_SELECTOR */
+
+    #ifndef KGDT_TSS_SELECTOR
+        #define KGDT_TSS_SELECTOR 0x28
+    #endif /* ifndef KGDT_TSS_SELECTOR */
+
     #ifndef KGDT_RELOAD_PTR
         #define KGDT_RELOAD_PTR(ptr) do { \
             __asm__ volatile ( \
@@ -37,6 +49,39 @@
             ); \
         } while (0)
     #endif /* ifndef KGDT_RELOAD_PTR */
+
+/*
+ * @brief The structure of a 32-bit TSS entry.
+ */
+typedef struct tss_entry_s {
+    uint32_t _prev_tss;
+    uint32_t _esp0;
+    uint32_t _ss0;
+    uint32_t _esp1;
+    uint32_t _ss1;
+    uint32_t _esp2;
+    uint32_t _ss2;
+    uint32_t _cr3;
+    uint32_t _eip;
+    uint32_t _eflags;
+    uint32_t _eax;
+    uint32_t _ecx;
+    uint32_t _edx;
+    uint32_t _ebx;
+    uint32_t _esp;
+    uint32_t _ebp;
+    uint32_t _esi;
+    uint32_t _edi;
+    uint32_t _es;
+    uint32_t _cs;
+    uint32_t _ss;
+    uint32_t _ds;
+    uint32_t _fs;
+    uint32_t _gs;
+    uint32_t _ldt;
+    uint16_t _trap;
+    uint16_t _iomap_base;
+} __attribute__((packed)) tss_entry_t;
 
 /*
  * @brief The structure of a GDT entry (descriptor).
@@ -79,5 +124,13 @@ typedef struct gdt_ptr_s {
  */
 bool32_t
 kgdt_init(void);
+
+/**
+ * @brief Set the kernel stack on the GDT TSS.
+ *
+ * @param esp0   The esp0
+ */
+void
+kgdt_set_kernel_stack(uint32_t esp0);
 
 #endif /* ifndef KERNEL_SYSTEM_GDT_H_ */

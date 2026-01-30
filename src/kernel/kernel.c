@@ -18,6 +18,7 @@
 #include <kernel/shell/shell.h>
 #include <kernel/misc/panic.h>
 #include <utils/misc/print.h>
+#include <kernel/sys/gdt.h>
 #include <utils/asm/hlt.h>
 #include <kernel/fs/fs.h>
 #include <defines.h>
@@ -33,6 +34,7 @@ kmain(void)
     kpic_remap();
     kidt_create_ptr(&idt_ptr);
     kidt_load_cpu(&idt_ptr);
+    kgdt_init();
     kpit_timer_init(PIT_TARGET_FREQUENCY);
     ktty_cursor_set_visibility(OK_TRUE);
     kinterruption_extern_start();
@@ -41,7 +43,7 @@ kmain(void)
     kfs_init();
 
     kscheduler_init(kprocess_kernel_init()->_main_thread);
-    kscheduler_add_task(kprocess_create(kshell_start_task)->_main_thread);
+    kscheduler_add_task(kprocess_create_kernel(kshell_start_task)->_main_thread);
 
     /* Should never goes here for the moment */
     KHLT_DO();

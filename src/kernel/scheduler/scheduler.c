@@ -7,10 +7,14 @@
 
 #include <kernel/scheduler/scheduler.h>
 #include <kernel/memory/api/kmalloc.h>
+#include <kernel/scheduler/process.h>
 #include <kernel/scheduler/context.h>
 #include <utils/kstdlib/kmemory.h>
+#include <kernel/memory/stack.h>
 #include <kernel/shell/shell.h>
+#include <kernel/memory/mmu.h>
 #include <utils/misc/print.h>
+#include <kernel/sys/gdt.h>
 
 /* @brief This variable is the head/tail of the task */
 task_t *ktask_head = NULL;
@@ -124,6 +128,10 @@ kscheduler_tick(isr_registers_t *regs)
         return KO_FALSE;
     }
     ktask_current = next;
+    if (next->_process != NULL && next->_process->_page_directory_phys != 0) {
+        kmmu_load_cr3(next->_process->_page_directory_phys);
+        kgdt_set_kernel_stack((uint32_t) &__kernel_stack_end);
+    }
     kcontext_switch_from_isr(&next->_ctx);
     __builtin_unreachable();
 }

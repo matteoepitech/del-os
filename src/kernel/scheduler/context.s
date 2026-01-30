@@ -42,6 +42,15 @@ kcontext_switch_from_isr:
 
     ; Switch to task stack
     mov esp, [esi + 28]       ; _esp
+    mov ebx, esp              ; keep user ESP for privilege drop
+
+    ; If target CS is user (RPL=3), push SS/ESP for privilege change
+    mov ax, [esi + 60]        ; _cs
+    test ax, 3
+    jz .no_user_stack
+    push dword 0x23           ; user SS (KGDT_USER_DATA_SELECTOR)
+    push ebx                  ; user ESP
+.no_user_stack:
 
     ; Build iret frame on the new stack (eflags, cs, eip)
     push dword [esi + 64]
