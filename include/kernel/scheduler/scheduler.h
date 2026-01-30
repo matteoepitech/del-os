@@ -23,10 +23,12 @@ extern bool32_t kscheduler_is_running;
 /**
  * @brief Initialize the scheduler stuff.
  *
+ * @param first_task        The first task in the scheduler
+ *
  * @return OK_TRUE if worked, KO_FALSE otherwise.
  */
 bool32_t
-kscheduler_init(void);
+kscheduler_init(task_t *first_task);
 
 /**
  * @brief Add a task in the scheduler.

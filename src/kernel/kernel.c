@@ -9,6 +9,7 @@
 #include <kernel/interruption/interruption.h>
 #include <kernel/scheduler/scheduler.h>
 #include <kernel/memory/api/kmalloc.h>
+#include <kernel/scheduler/process.h>
 #include <kernel/interruption/idt.h>
 #include <kernel/interruption/pic.h>
 #include <kernel/memory/pmm/pmm.h>
@@ -23,7 +24,6 @@
 
 /**
  * @brief Kernel main entry point.
- *        This function is located at 0x10000 in the memory.
  *        This function is called by the kernel_entry.s source file.
  */
 void
@@ -39,9 +39,9 @@ kmain(void)
     kearly_malloc_disable();
     kmalloc_init();
     kfs_init();
-    kscheduler_init();
+    kscheduler_init(kprocess_kernel_init()->_main_thread);
 
-    kscheduler_add_task(ktask_create(kshell_start_task));
+    //kscheduler_add_task(kprocess_create(kshell_start_task)->_main_thread);
 
     /* Should never goes here for the moment */
     KHLT_HARD_DO();

@@ -23,14 +23,24 @@ bool32_t kscheduler_is_running = KO_FALSE;
 /**
  * @brief Initialize the scheduler stuff.
  *
+ * @param first_task        The first task in the scheduler
+ *
  * @return OK_TRUE if worked, KO_FALSE otherwise.
  */
 bool32_t
-kscheduler_init(void)
+kscheduler_init(task_t *first_task)
 {
+    if (first_task == NULL) {
+        return KO_FALSE;
+    }
     ktask_head = NULL;
     ktask_tail = NULL;
     ktask_current = NULL;
+    kscheduler_is_running = KO_FALSE;
+    if (kscheduler_add_task(first_task) == KO_FALSE) {
+        return KO_FALSE;
+    }
+    kscheduler_start();
     return OK_TRUE;
 }
 
@@ -54,9 +64,6 @@ kscheduler_add_task(task_t *task)
         ktask_tail->_next = task;
         ktask_tail = task;
     }
-    if (kscheduler_is_running == KO_FALSE) {
-        kscheduler_start();
-    }
     return OK_TRUE;
 }
 
@@ -79,13 +86,23 @@ kscheduler_get_current_task(void)
 task_t *
 kscheduler_pick_next(void)
 {
+    task_t *next = NULL;
+
     if (ktask_current == NULL) {
         return NULL;
     }
     if (ktask_current->_next == NULL) {
         return ktask_head;
     }
-    return ktask_current->_next;
+    next = ktask_current->_next;
+    while (next) {
+        if (next->_state == KTASK_ZOMBIE) {
+            continue;
+        }
+        next = next->_next;
+        return next;
+    }
+    return NULL;
 }
 
 /**
@@ -97,6 +114,9 @@ kscheduler_tick(isr_registers_t *regs)
     task_t *next = NULL;
 
     if (regs == NULL || ktask_current == NULL) {
+        return KO_FALSE;
+    }
+    if (ktask_current == NULL) {
         return KO_FALSE;
     }
     kmemcpy(&ktask_current->_ctx, regs, sizeof(isr_registers_t));

@@ -10,6 +10,7 @@
 #include <kernel/interruption/isr.h>
 #include <kernel/interruption/pic.h>
 #include <kernel/interruption/pit.h>
+#include <kernel/misc/panic.h>
 #include <kernel/tty/tty.h>
 #include <defines.h>
 
@@ -32,6 +33,8 @@ irq_timer(isr_registers_t *regs)
     if (ticks_count % KERNEL_SCHEDULER_CONTEXT_TICKER == 0) {
         if (kscheduler_tick(regs) == OK_TRUE) {
             __builtin_unreachable();
+        } else {
+            KPANIC("No task found. Kernel died.");
         }
     }
     return;
