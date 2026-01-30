@@ -306,4 +306,15 @@ kshell_pwd(UNUSED uint32_t argc, UNUSED char *argv[]);
 uint8_t
 kshell_cd(uint32_t argc, char *argv[]);
 
+/**
+ * @brief Command for ps.
+ *
+ * @param argc          The number of argument
+ * @param argv[]        The array of argument
+ *
+ * @return The final code of the operation.
+ */
+uint8_t
+kshell_ps(UNUSED uint32_t argc, UNUSED char *argv[]);
+
 #endif /* ifndef KERNEL_SHELL_H_ */

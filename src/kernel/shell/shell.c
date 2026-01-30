@@ -40,6 +40,7 @@ const shell_command_t shell_commands[] = {
     {"rmdir", &kshell_rmdir, "Remove a directory (when empty)"},
     {"pwd", &kshell_pwd, "Print the working directory"},
     {"cd", &kshell_cd, "Change directory"},
+    {"ps", &kshell_ps,"Lists the PID and the PPID"},
     {NULL, NULL, NULL}
 };
 

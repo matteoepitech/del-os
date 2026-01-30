@@ -21,6 +21,8 @@
     #define KPROCESS_PT_TMP_VADDR 0xE0001000
     #define KPROCESS_STACK_TMP_VADDR 0xE0002000
 
+    #define KERNEL_PROCESS_NAME_MAX_LEN 32
+
 /* @brief Current PID variable to keep track of the PID */
 extern pid_t kprocess_pid_current;
 
@@ -42,6 +44,7 @@ typedef struct process_s {
     pid_t _ppid;
     task_t *_main_thread;
     process_state_t _state;
+    char _name[KERNEL_PROCESS_NAME_MAX_LEN];
     file_desc_t *_fds[KERNEL_PROCESS_FD_MAX_AMOUNT];
     page_directory_t *_page_directory;
     paddr_t _page_directory_phys;
@@ -85,5 +88,13 @@ kprocess_create_user(process_t *process, void (*entry)(void));
  */
 process_t *
 kprocess_kernel_init(void);
+
+/**
+ * @brief Kernel process init. It's the first task of the kernel.
+ *
+ * @param name          The name of the process.
+ */
+void
+kprocess_set_name(char *name, process_t *process);
 
 #endif /* ifndef KERNEL_SCHEDULER_PROCESS_H_ */
