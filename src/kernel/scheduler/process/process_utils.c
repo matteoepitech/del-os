@@ -16,5 +16,8 @@
 void
 kprocess_set_name(char *name, process_t *process)
 {
+    if (process == NULL || name == NULL) {
+        return;
+    }
     kstrcpy(process->_name, name);
 }

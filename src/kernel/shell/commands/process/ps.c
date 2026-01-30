@@ -31,19 +31,17 @@ kshell_ps(UNUSED uint32_t argc, UNUSED char *argv[])
     }
     KPRINTF_INFO("%4s %6s %8s", "PID", "PPID", "NAME");
     task = ktask_head;
-    do {
+    while (task != NULL) {
         process_t *process = task->_process;
-
-        if (process == NULL
-            || process->_state == KPROCESS_DEAD
-            || task != process->_main_thread) {
-            task = task->_next;
-            continue;
+        if (process != NULL && process->_state != KPROCESS_DEAD && task == process->_main_thread) {
+            KPRINTF_INFO("%4d %6d %8s", process->_pid, process->_ppid, process->_name);
+            processes_amount++;
         }
-        KPRINTF_INFO("%4d %6d %8s", process->_pid, process->_ppid, process->_name);
-        processes_amount++;
         task = task->_next;
-    } while (task != NULL && task != ktask_head);
+        if (task == ktask_head) {
+            break;
+        }
+    }
     if (processes_amount == 0) {
         KPRINTF_WARN("ps: no process to display");
         return OK_TRUE;
