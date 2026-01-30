@@ -23,7 +23,8 @@ extern bool32_t kscheduler_is_running;
 /**
  * @brief Initialize the scheduler stuff.
  *
- * @param first_task        The first task in the scheduler
+ * @param first_task        Optional if tasks are already registered with
+ *                          kscheduler_add_task; otherwise the seed task.
  *
  * @return OK_TRUE if worked, KO_FALSE otherwise.
  */

@@ -30,15 +30,18 @@ bool32_t kscheduler_is_running = KO_FALSE;
 bool32_t
 kscheduler_init(task_t *first_task)
 {
-    if (first_task == NULL) {
+    if (kscheduler_is_running == OK_TRUE) {
         return KO_FALSE;
     }
-    ktask_head = NULL;
-    ktask_tail = NULL;
-    ktask_current = NULL;
     kscheduler_is_running = KO_FALSE;
-    if (kscheduler_add_task(first_task) == KO_FALSE) {
-        return KO_FALSE;
+    ktask_current = NULL;
+    if (ktask_head == NULL) {
+        if (first_task == NULL) {
+            return KO_FALSE;
+        }
+        if (kscheduler_add_task(first_task) == KO_FALSE) {
+            return KO_FALSE;
+        }
     }
     kscheduler_start();
     return OK_TRUE;
@@ -60,7 +63,9 @@ kscheduler_add_task(task_t *task)
     if (ktask_head == NULL) {
         ktask_head = task;
         ktask_tail = task;
+        ktask_tail->_next = ktask_head;
     } else {
+        task->_next = ktask_head;
         ktask_tail->_next = task;
         ktask_tail = task;
     }
@@ -91,18 +96,14 @@ kscheduler_pick_next(void)
     if (ktask_current == NULL) {
         return NULL;
     }
-    if (ktask_current->_next == NULL) {
-        return ktask_head;
-    }
     next = ktask_current->_next;
-    while (next) {
-        if (next->_state == KTASK_ZOMBIE) {
-            continue;
-        }
+    while (next->_state == KTASK_ZOMBIE && next != ktask_current) {
         next = next->_next;
-        return next;
     }
-    return NULL;
+    if (next->_state == KTASK_ZOMBIE) {
+        return NULL;
+    }
+    return next;
 }
 
 /**
@@ -116,13 +117,10 @@ kscheduler_tick(isr_registers_t *regs)
     if (regs == NULL || ktask_current == NULL) {
         return KO_FALSE;
     }
-    if (ktask_current == NULL) {
-        return KO_FALSE;
-    }
     kmemcpy(&ktask_current->_ctx, regs, sizeof(isr_registers_t));
     ktask_current->_ctx._esp = (uint32_t) regs + sizeof(isr_registers_t); // IDK WHY but it's working
     next = kscheduler_pick_next();
-    if (next == NULL || next == ktask_current) {
+    if (next == NULL) {
         return KO_FALSE;
     }
     ktask_current = next;
@@ -136,8 +134,8 @@ kscheduler_start(void)
     if (ktask_head == NULL || kscheduler_is_running == OK_TRUE) {
         return;
     }
+    kscheduler_is_running = OK_TRUE;
     ktask_current = ktask_head;
     ktask_current->_state = KTASK_RUNNING;
-    kcontext_enter_first(&ktask_current->_ctx);
-    __builtin_unreachable();
+    return;
 }

@@ -11,16 +11,6 @@
 #include <utils/misc/print.h>
 #include <utils/asm/hlt.h>
 
-/**
- * @brief Kernel main task entry.
- */
-static void
-ktask_kernel_entry(void)
-{
-    make_hlt_hard();
-    return;
-}
-
 /* @brief Current PID variable to keep track of the PID */
 pid_t kprocess_pid_current = 0;
 
@@ -54,6 +44,16 @@ kprocess_create(void (*entry)(void))
     task->_process->_ppid = -1;
     task->_process->_state = KPROCESS_ALIVE;
     return process;
+}
+
+/**
+ * @brief Kernel main task entry.
+ */
+static void
+ktask_kernel_entry(void)
+{
+    while (OK_TRUE) { }
+    return;
 }
 
 /**

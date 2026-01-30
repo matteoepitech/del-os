@@ -39,11 +39,11 @@ kmain(void)
     kearly_malloc_disable();
     kmalloc_init();
     kfs_init();
-    kscheduler_init(kprocess_kernel_init()->_main_thread);
 
-    //kscheduler_add_task(kprocess_create(kshell_start_task)->_main_thread);
+    kscheduler_init(kprocess_kernel_init()->_main_thread);
+    kscheduler_add_task(kprocess_create(kshell_start_task)->_main_thread);
 
     /* Should never goes here for the moment */
-    KHLT_HARD_DO();
+    KHLT_DO();
     return;
 }
