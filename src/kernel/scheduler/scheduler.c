@@ -122,7 +122,15 @@ kscheduler_tick(isr_registers_t *regs)
         return KO_FALSE;
     }
     kmemcpy(&ktask_current->_ctx, regs, sizeof(isr_registers_t));
-    ktask_current->_ctx._esp = (uint32_t) regs + sizeof(isr_registers_t); // IDK WHY but it's working
+    if ((regs->_cs & 0x3) == 0x3) {
+        ktask_current->_ctx._esp = ((uint32_t *) regs)[17]; // user ESP captured by CPU
+        ktask_current->_ctx._ds = KGDT_USER_DATA_SELECTOR;
+        ktask_current->_ctx._es = KGDT_USER_DATA_SELECTOR;
+        ktask_current->_ctx._fs = KGDT_USER_DATA_SELECTOR;
+        ktask_current->_ctx._gs = KGDT_USER_DATA_SELECTOR;
+    } else {
+        ktask_current->_ctx._esp = (uint32_t) regs + sizeof(isr_registers_t);
+    }
     next = kscheduler_pick_next();
     if (next == NULL) {
         return KO_FALSE;

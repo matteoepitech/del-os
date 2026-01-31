@@ -31,6 +31,7 @@ global isr28
 global isr29
 global isr30
 global isr31
+global isr128
 
 extern kisr_handler
 
@@ -104,3 +105,4 @@ ISR_COMMON 28,0
 ISR_COMMON 29,1
 ISR_COMMON 30,1
 ISR_COMMON 31,0
+ISR_COMMON 128,0

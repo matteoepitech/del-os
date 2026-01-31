@@ -46,6 +46,7 @@ ISR_DECLARE_STUB(28);
 ISR_DECLARE_STUB(29);
 ISR_DECLARE_STUB(30);
 ISR_DECLARE_STUB(31);
+ISR_DECLARE_STUB(128);
 
 /* ISR Declarations for handlers */
 ISR_DECLARE_HANDLER(isr_div_zero);
@@ -80,6 +81,7 @@ ISR_DECLARE_HANDLER(isr_reserved_28);
 ISR_DECLARE_HANDLER(isr_reserved_29);
 ISR_DECLARE_HANDLER(isr_security_exception);
 ISR_DECLARE_HANDLER(isr_reserved_31);
+ISR_DECLARE_HANDLER(isr_syscall);
 
 /* IRQ Declarations for stubs */
 IRQ_DECLARE_STUB(0);
@@ -90,10 +92,10 @@ IRQ_DECLARE_HANDLER(irq_timer);
 IRQ_DECLARE_HANDLER(irq_keyboard_press);
 
 /**
- * @brief The global variable containing every exceptions ISR for IDT.
+ * @brief The global variable containing every exceptions ISR (kernel space) for IDT.
  *        TODO: Setup every interruptions.
  */
-static const idt_registration_t idt_exceptions_registration[] = {
+static const idt_registration_t idt_kernel_exceptions_registration[] = {
     {0,  isr0,  isr_div_zero},
     {1,  isr1,  isr_debug_exception},
     //{2,  isr2,  isr_nmi},
@@ -128,7 +130,18 @@ static const idt_registration_t idt_exceptions_registration[] = {
     //{31, isr31, isr_reserved_31},
 };
 
+/**
+ * @brief The global variable containing every exceptions ISR (user space) for IDT.
+ *        TODO: Setup every interruptions.
+ */
+static const idt_registration_t idt_user_exceptions_registration[] = {
+    {128, isr128, isr_syscall},
+};
 
+/**
+ * @brief The global variable containing every exceptions ISR/IRQ (hardware) for IDT.
+ *        TODO: Setup every interruptions.
+ */
 static const idt_registration_t idt_hardware_irq_registration[] = {
     {32, irq0, irq_timer},
     {33, irq1, irq_keyboard_press},
@@ -147,19 +160,20 @@ idt_ptr_t idt_ptr;
 idt_entry_t idt[IDT_SIZE];
 
 /**
- * @brief Register an IDT entry, this function can take hardware/exception ISR.
+ * @brief Register an IDT entry (handler + gate attributes).
  *
- * @param entry  The entry to the IDT registration
+ * @param entry      The entry description (vector/stub/handler)
+ * @param type_attr  Gate attributes (e.g., IDT_INT_GATE_KERNEL or _USER)
  *
  * @return OK_TRUE if worked, KO_FALSE otherwise.
  */
 static bool32_t
-register_idt_entry(const idt_registration_t *entry)
+register_idt_entry(const idt_registration_t *entry, uint8_t type_attr)
 {
     if (entry == NULL || entry->_stub == NULL || entry->_handler == NULL) {
         return KO_FALSE;
     }
-    if (kidt_set_entry(entry->_vector, (uint32_t) entry->_stub, IDT_SEGMENT_CODE, IDT_INT_GATE_KERNEL) == KO_FALSE) {
+    if (kidt_set_entry(entry->_vector, (uint32_t) entry->_stub, IDT_SEGMENT_CODE, type_attr) == KO_FALSE) {
         return KO_FALSE;
     }
     if (kisr_register_handler(entry->_vector, entry->_handler) == KO_FALSE) {
@@ -176,16 +190,22 @@ register_idt_entry(const idt_registration_t *entry)
 static bool32_t
 idt_load_all_isr(void)
 {
-    uint32_t exception_count = sizeof(idt_exceptions_registration) / sizeof(idt_exceptions_registration[0]);
+    uint32_t exception_count_kernel = sizeof(idt_kernel_exceptions_registration) / sizeof(idt_kernel_exceptions_registration[0]);
+    uint32_t exception_count_user = sizeof(idt_user_exceptions_registration) / sizeof(idt_user_exceptions_registration[0]);
     uint32_t irq_count = sizeof(idt_hardware_irq_registration) / sizeof(idt_hardware_irq_registration[0]);
 
-    for (uint32_t i = 0; i < exception_count; i += 1) {
-        if (register_idt_entry(&idt_exceptions_registration[i]) == KO_FALSE) {
+    for (uint32_t i = 0; i < exception_count_kernel; i += 1) {
+        if (register_idt_entry(&idt_kernel_exceptions_registration[i], IDT_INT_GATE_KERNEL) == KO_FALSE) {
+            return KO_FALSE;
+        }
+    }
+    for (uint32_t i = 0; i < exception_count_user; i += 1) {
+        if (register_idt_entry(&idt_user_exceptions_registration[i], IDT_INT_GATE_USER) == KO_FALSE) {
             return KO_FALSE;
         }
     }
     for (uint32_t i = 0; i < irq_count; i += 1) {
-        if (register_idt_entry(&idt_hardware_irq_registration[i]) == KO_FALSE) {
+        if (register_idt_entry(&idt_hardware_irq_registration[i], IDT_INT_GATE_KERNEL) == KO_FALSE) {
             return KO_FALSE;
         }
     }

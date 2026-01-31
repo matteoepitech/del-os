@@ -5,6 +5,7 @@
 ** Task manager source file
 */
 
+#include "kernel/interruption/interruption.h"
 #include <kernel/scheduler/scheduler.h>
 #include <kernel/memory/api/kmalloc.h>
 #include <kernel/scheduler/process.h>
@@ -64,6 +65,7 @@ ktask_exit(void)
         ktask_yield();
     }
     ktask_current->_state = KTASK_ZOMBIE;
+    kinterruption_extern_start();
     ktask_yield();
     __builtin_unreachable();
 }
@@ -87,6 +89,7 @@ __attribute__((noreturn)) void
 ktask_stubs(void (*entry(void)))
 {
     entry();
+    __asm__ volatile("mov $0, %%eax; int $0x80" ::: "eax");
     ktask_exit();
     __builtin_unreachable();
 }
