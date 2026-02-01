@@ -29,11 +29,11 @@ kshell_touch(uint32_t argc, char *argv[])
         KPRINTF_ERROR("%s", "usage: touch <path>");
         return OK_TRUE;
     }
-    fd = ksys_open(argv[1], KVFS_O_CREAT, 0644);
+    fd = kfd_open(argv[1], KVFS_O_CREAT, 0644);
     if (fd == KFD_ERROR) {
         KPRINTF_ERROR("touch: cannot create the file");
         return OK_TRUE;
     }
-    ksys_close(fd);
+    kfd_close(fd);
     return KO_FALSE;
 }

@@ -34,13 +34,13 @@ kshell_cat(uint32_t argc, char *argv[])
         KPRINTF_ERROR("usage: cat <path>");
         return OK_TRUE;
     }
-    fd = ksys_open(argv[1], KVFS_O_RDONLY, 0);
+    fd = kfd_open(argv[1], KVFS_O_RDONLY, 0);
     if (fd == KFD_ERROR) {
         KPRINTF_ERROR("cat: no such file or directory");
         return OK_TRUE;
     }
-    if (ksys_fstat(fd, &stat_buffer) == -1) {
-        ksys_close(fd);
+    if (kfd_stat(fd, &stat_buffer) == KO_FALSE) {
+        kfd_close(fd);
         return OK_TRUE;
     }
     if (KVFS_STAT_ISREG(stat_buffer._mode) == KO_FALSE) {
@@ -60,6 +60,6 @@ kshell_cat(uint32_t argc, char *argv[])
     KPRINTF_OK("%s", argv[1]);
     ktty_puts(buffer, VGA_TEXT_DEFAULT_COLOR);
     ktty_putc('\n', VGA_TEXT_DEFAULT_COLOR);
-    ksys_close(fd);
+    kfd_close(fd);
     return KO_FALSE;
 }

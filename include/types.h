@@ -24,6 +24,11 @@ typedef char int8_t;
 typedef int int32_t;
 
 /**
+ * @brief Syscall argument type (register-sized signed int)
+ */
+typedef int32_t sysarg_t;
+
+/**
  * @brief Unsigned integer (4 bytes)
  */
 typedef unsigned int uint32_t;

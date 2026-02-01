@@ -8,27 +8,24 @@
 #include <kernel/fs/vfs/vfs_open.h>
 #include <utils/kstdlib/kstring.h>
 #include <kernel/sys/syscall.h>
+#include <kernel/fs/fs_utils.h>
 #include <kernel/fs/fd/fd.h>
+#include <defines.h>
 
 /**
- * @brief Syscall to create a new directory at a specified path.
+ * @brief Syscall entry mkdir.
  *
- * @param path   The path to create the directory
+ * @param a1    Path pointer (const char *)
+ * @param a2    Unused
+ * @param a3    Unused
+ * @param a4    Unused
+ * @param a5    Unused
+ * @param a6    Unused
  *
- * @return O if worked, -1 if any error.
+ * @return 0 on success, -1 on error.
  */
 int32_t
-ksys_mkdir(const char *path)
+ksys_mkdir(sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5, UNUSED sysarg_t a6)
 {
-    fd_t dir = KFD_ERROR;
-
-    if (kstrcmp(path, "..") == 0 || kstrcmp(path, ".") == 0 || kstrcmp(path, "/") == 0) {
-        return -1;
-    }
-    dir = kfd_open(path, KVFS_O_CREAT | KVFS_O_DIRECTORY | KVFS_O_EXCL, 0666);
-    if (dir != KFD_ERROR) {
-        kfd_close(dir);
-        return 0;
-    }
-    return -1;
+    return kmkdir((const char *) a1);
 }

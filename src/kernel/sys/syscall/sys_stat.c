@@ -7,32 +7,25 @@
 
 #include <kernel/fs/fd/fd_operations.h>
 #include <kernel/fs/vfs/vfs_open.h>
+#include <kernel/fs/fs_utils.h>
 #include <kernel/sys/syscall.h>
 #include <kernel/fs/fd/fd.h>
 #include <defines.h>
 
 /**
- * @brief Syscall to get the stat metadata of a file descriptor.
+ * @brief Syscall entry stat.
  *
- * @param path       The path to the file
- * @param stat_ptr   The pointer to the stat buffer
+ * @param a1    Path pointer (const char *)
+ * @param a2    Pointer to vfs_stat_t buffer
+ * @param a3    Unused
+ * @param a4    Unused
+ * @param a5    Unused
+ * @param a6    Unused
  *
- * @return O if worked, -1 if any error.
+ * @return 0 on success, -1 on error.
  */
 int32_t
-ksys_stat(const char *path, vfs_stat_t *stat_ptr)
+ksys_stat(sysarg_t a1, sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5, UNUSED sysarg_t a6)
 {
-    fd_t fd = KFD_ERROR;
-
-    if (path == NULL || stat_ptr == NULL) {
-        return -1;
-    }
-    fd = kfd_open(path, KVFS_O_RDONLY, 0);
-    if (fd == -1) {
-        return -1;
-    }
-    if (kfd_stat(fd, stat_ptr) == KO_FALSE) {
-        return -1;
-    }
-    return 0;
+    return kstat((const char *) a1, (vfs_stat_t *) a2);
 }

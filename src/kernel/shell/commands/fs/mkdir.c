@@ -6,6 +6,7 @@
 */
 
 #include <kernel/shell/shell.h>
+#include <kernel/fs/fs_utils.h>
 #include <kernel/sys/syscall.h>
 #include <kernel/fs/vfs/vfs.h>
 #include <utils/misc/print.h>
@@ -26,7 +27,7 @@ kshell_mkdir(uint32_t argc, char *argv[])
         KPRINTF_ERROR("usage: mkdir <path>");
         return OK_TRUE;
     }
-    if (ksys_mkdir(argv[1]) == -1) {
+    if (kmkdir(argv[1]) == -1) {
         KPRINTF_ERROR("mkdir: error while creating the directory");
         return OK_TRUE;
     }

@@ -8,26 +8,24 @@
 #include <kernel/fs/vfs/vfs_open.h>
 #include <utils/kstdlib/kstring.h>
 #include <kernel/sys/syscall.h>
+#include <kernel/fs/fs_utils.h>
 #include <kernel/fs/fd/fd.h>
+#include <defines.h>
 
 /**
- * @brief Syscall to remove a directory using his path.
+ * @brief Syscall entry rmdir.
  *
- * @param path   The path to directory to remove
+ * @param a1    Path pointer (const char *)
+ * @param a2    Unused
+ * @param a3    Unused
+ * @param a4    Unused
+ * @param a5    Unused
+ * @param a6    Unused
  *
- * @return O if worked, -1 if any error.
+ * @return 0 on success, -1 on error.
  */
 int32_t
-ksys_rmdir(const char *path)
+ksys_rmdir(sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5, UNUSED sysarg_t a6)
 {
-    bool32_t rmdir_r = KO_FALSE;
-
-    if (kstrcmp(path, "..") == 0 || kstrcmp(path, ".") == 0 || kstrcmp(path, "/") == 0) {
-        return -1;
-    }
-    rmdir_r = kvfs_rmdir(path);
-    if (rmdir_r == KO_FALSE) {
-        return -1;
-    }
-    return 0;
+    return krmdir((const char *) a1);
 }

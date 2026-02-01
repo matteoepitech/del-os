@@ -5,6 +5,7 @@
 ** unlink command source file
 */
 
+#include <kernel/fs/fd/fd_operations.h>
 #include <kernel/shell/shell.h>
 #include <kernel/sys/syscall.h>
 #include <utils/misc/print.h>
@@ -25,7 +26,7 @@ kshell_unlink(uint32_t argc, char *argv[])
         KPRINTF_ERROR("%s", "usage: unlink <path>");
         return OK_TRUE;
     }
-    if (ksys_unlink(argv[1]) == -1) {
+    if (kvfs_unlink(argv[1]) == KO_FALSE) {
         KPRINTF_ERROR("unlink: error while unlinking");
         return OK_TRUE;
     }

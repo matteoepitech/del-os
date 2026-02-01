@@ -232,6 +232,16 @@ void
 kvfs_close(vfs_node_t *node);
 
 /**
+ * @brief Change the directory of the kvfs_cwd.
+ *
+ * @param path   The path to change the directory
+ *
+ * @return 0 if worked, -1 if any error.
+ */
+int32_t
+kvfs_chdir(const char *path);
+
+/**
  * @brief Give us the pointer to the literal string of a type node name.
  *
  * @param mode   The mode of the entry

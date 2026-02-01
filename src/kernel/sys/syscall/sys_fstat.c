@@ -11,18 +11,19 @@
 #include <defines.h>
 
 /**
- * @brief Syscall to get the stat metadata of a file descriptor.
+ * @brief Syscall entry fstat.
  *
- * @param fd         The file descriptor to stat
- * @param stat_ptr   The pointer to the stat buffer
+ * @param a1    File descriptor to stat
+ * @param a2    Pointer to vfs_stat_t buffer
+ * @param a3    Unused
+ * @param a4    Unused
+ * @param a5    Unused
+ * @param a6    Unused
  *
- * @return O if worked, -1 if any error.
+ * @return 0 on success, -1 on error.
  */
 int32_t
-ksys_fstat(fd_t fd, vfs_stat_t *stat_ptr)
+ksys_fstat(sysarg_t a1, sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5, UNUSED sysarg_t a6)
 {
-    if (kfd_stat(fd, stat_ptr) == KO_FALSE) {
-        return -1;
-    }
-    return 0;
+    return kfd_stat((fd_t) a1, (vfs_stat_t *) a2);
 }

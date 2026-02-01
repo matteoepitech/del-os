@@ -5,23 +5,24 @@
 ** SYSCALL open source file
 */
 
-#include <kernel/fs/fd/fd.h>
 #include <kernel/sys/syscall.h>
+#include <kernel/fs/fd/fd.h>
+#include <defines.h>
 
 /**
- * @brief Syscall to open a file descriptor.
+ * @brief Syscall entry open.
  *
- * @param path   The path to open
- * @param flags  The flags to open the file with
- * @param mode   The mode to use when creating the file
+ * @param a1    Path pointer (const char *)
+ * @param a2    Flags
+ * @param a3    Mode (created file permissions)
+ * @param a4    Unused
+ * @param a5    Unused
+ * @param a6    Unused
  *
- * @return The file descriptor if worked, KFD_ERROR otherwise.
+ * @return New fd or KFD_ERROR.
  */
-fd_t
-ksys_open(const char *path, int32_t flags, mode_t mode)
+int32_t
+ksys_open(sysarg_t a1, sysarg_t a2, sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5, UNUSED sysarg_t a6)
 {
-    if (path == NULL) {
-        return KFD_ERROR;
-    }
-    return kfd_open(path, flags, mode);
+    return kfd_open((const char *) a1, (int32_t) a2, (mode_t) a3);
 }

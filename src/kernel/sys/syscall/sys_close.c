@@ -10,17 +10,19 @@
 #include <defines.h>
 
 /**
- * @brief Syscall to close a file descriptor.
+ * @brief Syscall entry close.
  *
- * @param fd   The file descriptor to close
+ * @param a1    File descriptor to close
+ * @param a2    Unused
+ * @param a3    Unused
+ * @param a4    Unused
+ * @param a5    Unused
+ * @param a6    Unused
  *
- * @return O if worked, -1 if any error.
+ * @return 0 on success, -1 on error.
  */
 int32_t
-ksys_close(fd_t fd)
+ksys_close(sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5, UNUSED sysarg_t a6)
 {
-    if (kfd_close(fd) == KO_FALSE) {
-        return -1;
-    }
-    return 0;
+    return kfd_close((fd_t) a1);
 }

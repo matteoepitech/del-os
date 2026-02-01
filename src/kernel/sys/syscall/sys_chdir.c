@@ -8,37 +8,22 @@
 #include <kernel/fs/vfs/vfs_open.h>
 #include <kernel/sys/syscall.h>
 #include <kernel/fs/fd/fd.h>
+#include <defines.h>
 
 /**
- * @brief Syscall to change the current working directory.
- *        WARN: actually only supporting kvfs_cwd
+ * @brief Syscall entry chdir.
  *
- * @param path   The path to change directory
+ * @param a1    Path pointer (const char *)
+ * @param a2    Unused
+ * @param a3    Unused
+ * @param a4    Unused
+ * @param a5    Unused
+ * @param a6    Unused
  *
- * @return O if worked, -1 if any error.
+ * @return 0 on success, -1 on error.
  */
 int32_t
-ksys_chdir(const char *path)
+ksys_chdir(sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5, UNUSED sysarg_t a6)
 {
-    vfs_stat_t stat_buffer = {0};
-    vfs_node_t *dir_to_cd = NULL;
-
-    if (path == NULL) {
-        return -1;
-    }
-    dir_to_cd = kvfs_lookup_open(path);
-    if (dir_to_cd == NULL) {
-        return -1;
-    }
-    if (kvfs_stat_from_node(dir_to_cd, &stat_buffer) == KO_FALSE) {
-        kvfs_close(dir_to_cd);
-        return -1;
-    }
-    if (KVFS_STAT_ISDIR(stat_buffer._mode) == KO_FALSE) {
-        kvfs_close(dir_to_cd);
-        return -1;
-    }
-    kvfs_close(kvfs_cwd);
-    kvfs_cwd = dir_to_cd;
-    return 0;
+    return kvfs_chdir((const char *) a1);
 }
