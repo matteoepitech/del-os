@@ -84,7 +84,7 @@ kprocess_create_user(process_t *process, void (*entry)(void));
 /**
  * @brief Kernel process init. It's the first task of the kernel.
  *
- * @return The task of the kernel.
+ * @return The process of the kernel.
  */
 process_t *
 kprocess_kernel_init(void);

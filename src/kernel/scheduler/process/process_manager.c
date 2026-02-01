@@ -56,7 +56,7 @@ kprocess_create(void (*entry)(void))
     task->_process = process;
     task->_process->_main_thread = task;
     task->_process->_pid = kprocess_pid_current++;
-    task->_process->_ppid = ktask_current->_process->_ppid;
+    task->_process->_ppid = ktask_current->_process->_pid;
     task->_process->_state = KPROCESS_ALIVE;
     if (kprocess_create_user(process, entry) == KO_FALSE) {
         kfree(process);
@@ -92,7 +92,7 @@ kprocess_create_kernel(void (*entry)(void))
     task->_process = process;
     task->_process->_main_thread = task;
     task->_process->_pid = kprocess_pid_current++;
-    task->_process->_ppid = ktask_current ? ktask_current->_process->_ppid : 0;
+    task->_process->_ppid = ktask_current ? ktask_current->_process->_pid : 0;
     task->_process->_state = KPROCESS_ALIVE;
     task->_process->_page_directory = kvmm_page_directory;
     task->_process->_page_directory_phys = VIRT_TO_PHYS(kvmm_page_directory);
@@ -102,7 +102,7 @@ kprocess_create_kernel(void (*entry)(void))
 /**
  * @brief Kernel process init. It's the first task of the kernel.
  *
- * @return The task of the kernel.
+ * @return The process of the kernel.
  */
 process_t *
 kprocess_kernel_init(void)
@@ -121,5 +121,6 @@ kprocess_kernel_init(void)
     kernel_process->_page_directory = kvmm_page_directory;
     kernel_process->_page_directory_phys = VIRT_TO_PHYS(kvmm_page_directory);
     kprocess_set_name("ksystem", kernel_process);
+    kprocess_pid_current = 1;
     return kernel_process;
 }

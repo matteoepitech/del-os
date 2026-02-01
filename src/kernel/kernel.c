@@ -43,7 +43,7 @@ kmain(void)
     kfs_init();
 
     kscheduler_init(kprocess_kernel_init()->_main_thread);
-    kscheduler_add_task(kprocess_create_kernel(kshell_start_task)->_main_thread);
+    kscheduler_add_task(kprocess_shell_init()->_main_thread);
 
     /* Should never goes here for the moment */
     KHLT_DO();

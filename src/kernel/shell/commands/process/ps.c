@@ -22,8 +22,9 @@
 uint8_t
 kshell_ps(UNUSED uint32_t argc, UNUSED char *argv[])
 {
-    task_t *task = NULL;
     uint32_t processes_amount = 0;
+    process_t *process = NULL;
+    task_t *task = NULL;
 
     if (ktask_head == NULL) {
         KPRINTF_WARN("ps: scheduler is empty");
@@ -32,7 +33,7 @@ kshell_ps(UNUSED uint32_t argc, UNUSED char *argv[])
     KPRINTF_INFO("%4s %6s %8s", "PID", "PPID", "NAME");
     task = ktask_head;
     while (task != NULL) {
-        process_t *process = task->_process;
+        process = task->_process;
         if (process != NULL && process->_state != KPROCESS_DEAD && task == process->_main_thread) {
             KPRINTF_INFO("%4d %6d %8s", process->_pid, process->_ppid, process->_name);
             processes_amount++;

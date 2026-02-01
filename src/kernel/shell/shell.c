@@ -7,6 +7,7 @@
 
 #include <kernel/shell/parser/autocomplete.h>
 #include <kernel/shell/parser/arguments.h>
+#include <kernel/memory/api/kmalloc.h>
 #include <utils/kstdlib/kstring.h>
 #include <kernel/misc/keyboard.h>
 #include <kernel/shell/shell.h>
@@ -153,8 +154,25 @@ kshell_start(void)
  *        Used on the scheduler to perform multi-task.
  */
 void
-kshell_start_task(void)
+ktask_shell_entry(void)
 {
     kshell_start();
     return;
+}
+
+/**
+ * @brief Kernel shell process init.
+ *
+ * @return The process of the kernel shell.
+ */
+process_t *
+kprocess_shell_init(void)
+{
+    process_t *shell_process = kprocess_create_kernel(ktask_shell_entry);
+
+    if (shell_process == NULL) {
+        return NULL;
+    }
+    kprocess_set_name("kshell", shell_process);
+    return shell_process;
 }

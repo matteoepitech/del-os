@@ -6,6 +6,7 @@
 */
 
 #include <kernel/shell/parser/arguments.h>
+#include <kernel/scheduler/process.h>
 #include <defines.h>
 #include <types.h>
 
@@ -54,11 +55,19 @@ bool32_t
 kshell_start(void);
 
 /**
+ * @brief Kernel shell process init.
+ *
+ * @return The process of the kernel shell.
+ */
+process_t *
+kprocess_shell_init(void);
+
+/**
  * @brief Start the shell using a task.
  *        Used on the scheduler to perform multi-task.
  */
 void
-kshell_start_task(void);
+ktask_shell_entry(void);
 
 /*
  * -- COMMANDS --
