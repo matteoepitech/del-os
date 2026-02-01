@@ -11,6 +11,7 @@
 #include <kernel/scheduler/process.h>
 #include <kernel/scheduler/task.h>
 #include <utils/kstdlib/kmemory.h>
+#include <utils/asm/syscall.h>
 #include <kernel/sys/gdt.h>
 #include <utils/asm/hlt.h>
 
@@ -44,7 +45,7 @@ ktask_create(void (*entry)(void))
     *(uint32_t *) stack_top = (uint32_t) entry;
     stack_top -= sizeof(uint32_t);
     *(uint32_t *) stack_top = 0;
-    task->_ctx._eip = (uint32_t)ktask_stubs;
+    task->_ctx._eip = (uint32_t) ktask_stubs;
     task->_ctx._esp = stack_top;
     task->_ctx._cs = KGDT_CODE_SELECTOR;
     task->_ctx._eflags = 0x202; /* IF=1 */
@@ -89,7 +90,6 @@ __attribute__((noreturn)) void
 ktask_stubs(void (*entry(void)))
 {
     entry();
-    __asm__ volatile("mov $0, %%eax; int $0x80" ::: "eax");
-    ktask_exit();
+    syscall(0, 0, 0, 0, 0, 0, 0); // exit syscall
     __builtin_unreachable();
 }

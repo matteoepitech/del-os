@@ -10,7 +10,8 @@
 /*
  * @brief Array of syscalls. The position of this array determine the ID of the syscall in the EAX register
  */
-const syscall_fn_t ksyscalls_array[] = {
+const syscall_fn_t syscalls_array[] = {
+    ksys_exit,      // 0
     ksys_open,      // 1
     ksys_close,     // 2
     ksys_chdir,     // 3

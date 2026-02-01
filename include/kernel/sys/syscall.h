@@ -17,9 +17,10 @@ typedef int32_t (*syscall_fn_t)(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t
 /*
  * @brief Array of syscalls. The position of this array determine the ID of the syscall in the EAX register
  */
-extern const syscall_fn_t ksyscalls_array[];
+extern const syscall_fn_t syscalls_array[];
 
 /* Syscall entry points (register-based, six arguments) in order. */
+int32_t ksys_exit(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_open(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_close(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_chdir(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);

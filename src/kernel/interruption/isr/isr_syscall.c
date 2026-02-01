@@ -7,6 +7,7 @@
 
 #include <kernel/interruption/isr.h>
 #include <kernel/scheduler/task.h>
+#include <kernel/sys/syscall.h>
 #include <defines.h>
 
 /**
@@ -17,9 +18,13 @@
 void
 isr_syscall(isr_registers_t *regs)
 {
+    int32_t syscall_id = 0;
+
     if (regs == NULL) {
         return;
     }
-    ktask_exit();
+    syscall_id = regs->_eax;
+    // TODO: the 6th argument ?
+    syscalls_array[syscall_id](regs->_ebx, regs->_ecx, regs->_edx, regs->_esi, regs->_edi, 0);
     __builtin_unreachable();
 }
