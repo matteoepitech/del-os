@@ -5,12 +5,27 @@
 ** FD helper source file
 */
 
+#include <kernel/scheduler/scheduler.h>
 #include <kernel/memory/api/kmalloc.h>
+#include <kernel/scheduler/process.h>
 #include <kernel/fs/vfs/vfs_open.h>
 #include <kernel/fs/fd/fd.h>
 
-/* @brief TEMPORARY variable to store file descriptors */
-file_desc_t *kfd_table[KFD_MAX_COUNT] = {NULL};
+/**
+ * @brief Get the fd table of a process.
+ *
+ * @param process    The process to get the file table from
+ *
+ * @return The array of file descriptor.
+ */
+static file_desc_t **
+kfd_get_table_process(process_t *process)
+{
+    if (process == NULL) {
+        return NULL;
+    }
+    return process->_fds;
+}
 
 /**
  * @brief Create a file descriptor from a VFS node.
@@ -23,14 +38,30 @@ file_desc_t *kfd_table[KFD_MAX_COUNT] = {NULL};
 fd_t
 kfd_create(vfs_node_t *node, int32_t flags)
 {
+    return kfd_create_for_process(ktask_current ? ktask_current->_process : NULL, node, flags);
+}
+
+/**
+ * @brief Create a file descriptor for a process.
+ *
+ * @param process    The process to get the file descriptor
+ * @param node       The node of the VFS
+ * @param flags      The flag of the node to open
+ *
+ * @return The file descriptor created.
+ */
+fd_t
+kfd_create_for_process(process_t *process, vfs_node_t *node, int32_t flags)
+{
     file_desc_t *fd_struct = NULL;
+    file_desc_t **table = kfd_get_table_process(process);
     fd_t fd = KFD_ERROR;
 
-    if (node == NULL) {
+    if (node == NULL || table == NULL) {
         return KFD_ERROR;
     }
     for (fd = 0; fd < KFD_MAX_COUNT; fd++) {
-        if (kfd_table[fd] == NULL) {
+        if (table[fd] == NULL) {
             break;
         }
     }
@@ -45,7 +76,7 @@ kfd_create(vfs_node_t *node, int32_t flags)
     fd_struct->_offset = 0;
     fd_struct->_flags = flags;
     fd_struct->_refcount = 1;
-    kfd_table[fd] = fd_struct;
+    table[fd] = fd_struct;
     return fd;
 }
 
@@ -59,10 +90,26 @@ kfd_create(vfs_node_t *node, int32_t flags)
 file_desc_t *
 kfd_get(fd_t fd)
 {
-    if (fd < 0 || fd >= KFD_MAX_COUNT) {
+    return kfd_get_from_process(ktask_current ? ktask_current->_process : NULL, fd);
+}
+
+/**
+ * @brief Get the information about a file descriptor for a process.
+ *
+ * @param process    The process
+ * @param fd         The file descriptor
+ *
+ * @return The file descriptor information.
+ */
+file_desc_t *
+kfd_get_from_process(process_t *process, fd_t fd)
+{
+    file_desc_t **table = kfd_get_table_process(process);
+
+    if (fd < 0 || fd >= KFD_MAX_COUNT || table == NULL) {
         return NULL;
     }
-    return kfd_table[fd];
+    return table[fd];
 }
 
 /**
@@ -76,14 +123,30 @@ kfd_get(fd_t fd)
 bool32_t
 kfd_check_access(fd_t fd, fd_access_t required_access)
 {
+    return kfd_check_access_from_process(ktask_current ? ktask_current->_process : NULL, fd, required_access);
+}
+
+/**
+ * @brief Check if the access is granted for a process and a fd.
+ *
+ * @param process            The process
+ * @param fd                 The file descriptor
+ * @param required_access    The minimum access required
+ *
+ * @return OK_TRUE if access is allowed, KO_FALSE otherwise.
+ */
+bool32_t
+kfd_check_access_from_process(process_t *process, fd_t fd, fd_access_t required_access)
+{
     file_desc_t *desc = NULL;
     uint32_t allowed = 0;
     int32_t accmode = 0;
+    file_desc_t **table = kfd_get_table_process(process);
 
-    if (fd < 0 || fd >= KFD_MAX_COUNT) {
+    if (fd < 0 || fd >= KFD_MAX_COUNT || table == NULL) {
         return KO_FALSE;
     }
-    desc = kfd_table[fd];
+    desc = table[fd];
     if (desc == NULL) {
         return KO_FALSE;
     }

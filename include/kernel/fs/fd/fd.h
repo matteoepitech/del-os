@@ -19,6 +19,9 @@
         #define KFD_ERROR -1 
     #endif /* ifndef KFD_ERROR */
 
+/* Forward declaration for process_s */
+struct process_s;
+
 /*
  * @brief Structure for a file descriptor.
  *        - node     = the VFS node
@@ -32,9 +35,6 @@ typedef struct file_desc_s {
     uint32_t _flags;
     uint32_t _refcount;
 } file_desc_t;
-
-/* @brief TEMPORARY variable to store file descriptors */
-extern file_desc_t *kfd_table[KFD_MAX_COUNT];
 
 /*
  * @brief Enumerations for accessing FD.
@@ -58,6 +58,18 @@ fd_t
 kfd_create(vfs_node_t *node, int32_t flags);
 
 /**
+ * @brief Create a file descriptor for a process.
+ *
+ * @param process    The process to get the file descriptor
+ * @param node       The node of the VFS
+ * @param flags      The flag of the node to open
+ *
+ * @return The file descriptor created.
+ */
+fd_t
+kfd_create_for_process(struct process_s *process, vfs_node_t *node, int32_t flags);
+
+/**
  * @brief Get the information about a FD.
  *
  * @param fd     The FD to get
@@ -66,6 +78,17 @@ kfd_create(vfs_node_t *node, int32_t flags);
  */
 file_desc_t *
 kfd_get(fd_t fd);
+
+/**
+ * @brief Get the information about a file descriptor for a process.
+ *
+ * @param process    The process
+ * @param fd         The file descriptor
+ *
+ * @return The file descriptor information.
+ */
+file_desc_t *
+kfd_get_from_process(struct process_s *process, fd_t fd);
 
 /**
  * @brief Check if a file descriptor has the required access permissions.
@@ -77,6 +100,18 @@ kfd_get(fd_t fd);
  */
 bool32_t
 kfd_check_access(fd_t fd, fd_access_t required_access);
+
+/**
+ * @brief Check if the access is granted for a process and a fd.
+ *
+ * @param process            The process
+ * @param fd                 The file descriptor
+ * @param required_access    The minimum access required
+ *
+ * @return OK_TRUE if access is allowed, KO_FALSE otherwise.
+ */
+bool32_t
+kfd_check_access_from_process(struct process_s *process, fd_t fd, fd_access_t required_access);
 
 /**
  * @brief Open a file and go through its entire path to get the node associated to the end level.
@@ -91,6 +126,19 @@ fd_t
 kfd_open(const char *path, int32_t flags, mode_t mode);
 
 /**
+ * @brief Open a file and go through its entire path to get the node associated to the end level.
+ *
+ * @param process The process to open from
+ * @param path    The complete path to a node (e.g. "/abc/dir/a.txt")
+ * @param flags   The flags O_CREAT | O_RDONLY ...
+ * @param mode    The mode (used when creating the file only)
+ *
+ * @return The file descriptor.
+ */
+fd_t
+kfd_open_for_process(struct process_s *process, const char *path, int32_t flags, mode_t mode);
+
+/**
  * @brief Close a file descriptor and drop its reference to the VFS node.
  *
  * @param fd   The file descriptor to close
@@ -99,5 +147,16 @@ kfd_open(const char *path, int32_t flags, mode_t mode);
  */
 bool32_t
 kfd_close(fd_t fd);
+
+/**
+ * @brief Close a FD of a process.
+ *
+ * @param process    The process to close the FD from
+ * @param fd         The FD to close
+ *
+ * @return OK_TRUE if worked, KO_FALSE otherwise.
+ */
+bool32_t
+kfd_close_for_process(struct process_s *process, fd_t fd);
 
 #endif /* ifndef KERNEL_FS_FD_H_ */

@@ -8,15 +8,16 @@
 #include <kernel/scheduler/scheduler.h>
 #include <kernel/memory/api/kmalloc.h>
 #include <kernel/scheduler/process.h>
+#include <kernel/fs/vfs/vfs_open.h>
 #include <kernel/memory/vmm/vmm.h>
 #include <kernel/memory/pmm/pmm.h>
-#include <kernel/fs/fd/fd.h>
-#include <kernel/fs/vfs/vfs_open.h>
 #include <utils/kstdlib/kmemory.h>
 #include <kernel/misc/panic.h>
 #include <utils/misc/print.h>
+#include <kernel/fs/fd/fd.h>
 #include <kernel/sys/gdt.h>
 #include <utils/asm/hlt.h>
+#include <defines.h>
 
 /* @brief Current PID variable to keep track of the PID */
 pid_t kprocess_pid_current = 0;
@@ -32,33 +33,19 @@ ktask_kernel_entry(void)
 }
 
 /**
- * @brief Attach file descriptors to a process. Such as stdin stdout stderr
+ * @brief Attach file descriptors to a process. Such as stdin stdout stderr.
  *
  * @param process    The process to attach the file descriptors
  */
 static void
 kprocess_attach_std_streams(process_t *process)
 {
-    static const char *stdin_path = "/dev/stdin";
-    static const char *stdout_path = "/dev/stdout";
-    static const char *stderr_path = "/dev/stderr";
-    fd_t fd = KFD_ERROR;
-
     if (process == NULL) {
         return;
     }
-    fd = kfd_open(stdin_path , KVFS_O_WRONLY, 0777);
-    if (fd != KFD_ERROR) {
-        process->_fds[0] = kfd_get(fd);
-    }
-    fd = kfd_open(stdout_path , KVFS_O_WRONLY, 0777);
-    if (fd != KFD_ERROR) {
-        process->_fds[1] = kfd_get(fd);
-    }
-    fd = kfd_open(stderr_path , KVFS_O_WRONLY, 0777);
-    if (fd != KFD_ERROR) {
-        process->_fds[2] = kfd_get(fd);
-    }
+    kfd_open_for_process(process, "/dev/stdin", KVFS_O_RDONLY, 0);
+    kfd_open_for_process(process, "/dev/stdout", KVFS_O_WRONLY, 0);
+    kfd_open_for_process(process, "/dev/stderr", KVFS_O_WRONLY, 0);
 }
 
 /**
