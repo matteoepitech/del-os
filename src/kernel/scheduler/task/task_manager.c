@@ -90,6 +90,6 @@ __attribute__((noreturn)) void
 ktask_stubs(void (*entry(void)))
 {
     entry();
-    __syscall__(KSYS_EXIT, 0, 0, 0, 0);
+    __syscall__(KSYS_EXIT, 0, 0, 0, 0, 0);
     __builtin_unreachable();
 }

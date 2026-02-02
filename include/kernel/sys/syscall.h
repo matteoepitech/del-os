@@ -23,6 +23,7 @@
         #define KSYS_STAT   6
         #define KSYS_FSTAT  7
         #define KSYS_UNLINK 8
+        #define KSYS_LOG    9
     #endif /* ifndef KERNEL_SYSCALL_LIST */
 
 /* @brief Syscall function typedef */
@@ -40,7 +41,7 @@ typedef int32_t (*syscall_fn_t)(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t
  * @return The return of the syscall.
  */
 int32_t
-__syscall__(int32_t eax, int32_t ebx, int32_t ecx, int32_t edx, int32_t esi);
+__syscall__(int32_t eax, int32_t ebx, int32_t ecx, int32_t edx, int32_t esi, int32_t edi);
 
 /*
  * @brief Array of syscalls. The position of this array determine the ID of the syscall in the EAX register
@@ -57,5 +58,6 @@ int32_t ksys_rmdir(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_stat(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_fstat(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_unlink(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
+int32_t ksys_log(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 
 #endif /* ifndef KERNEL_SYS_SYSCALL_H_ */

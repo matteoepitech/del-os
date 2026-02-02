@@ -24,7 +24,7 @@
 
 static void test_debug(void)
 {
-    // I can't make any KPRITNF_* here since it's for kernel space and we are in userspace.
+    __syscall__(KSYS_LOG, (int32_t) "Hi, from user space", 0, 0, 0, 0);
     return;
 }
 
