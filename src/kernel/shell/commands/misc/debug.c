@@ -24,7 +24,7 @@
 
 static void test_debug(void)
 {
-    __syscall__(KSYS_LOG, (int32_t) "Hi, from user space", 0, 0, 0, 0);
+    __syscall__(KSYS_LOG, (int32_t) "Hello team", 0, 0, 0, 0);
     return;
 }
 

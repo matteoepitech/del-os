@@ -11,7 +11,7 @@
 #ifndef KERNEL_SCHEDULER_CONTEXT_H_
     #define KERNEL_SCHEDULER_CONTEXT_H_
 
-    #define KERNEL_SCHEDULER_CONTEXT_TICKER 10
+    #define KERNEL_SCHEDULER_CONTEXT_TICKER 3
 
 /*
  * @brief Structure for the CPU context switching.
