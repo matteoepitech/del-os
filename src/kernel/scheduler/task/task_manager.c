@@ -11,7 +11,7 @@
 #include <kernel/scheduler/process.h>
 #include <kernel/scheduler/task.h>
 #include <utils/kstdlib/kmemory.h>
-#include <utils/asm/syscall.h>
+#include <kernel/sys/syscall.h>
 #include <kernel/sys/gdt.h>
 #include <utils/asm/hlt.h>
 
@@ -90,6 +90,6 @@ __attribute__((noreturn)) void
 ktask_stubs(void (*entry(void)))
 {
     entry();
-    syscall(0, 0, 0, 0, 0, 0, 0); // exit syscall
+    __syscall__(KSYS_EXIT, 0, 0, 0, 0);
     __builtin_unreachable();
 }

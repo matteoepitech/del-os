@@ -20,12 +20,11 @@
  * @param a3    Unused
  * @param a4    Unused
  * @param a5    Unused
- * @param a6    Unused
  *
  * @return 0 on success, -1 on error.
  */
 int32_t
-ksys_rmdir(sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5, UNUSED sysarg_t a6)
+ksys_rmdir(sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5)
 {
     return krmdir((const char *) a1);
 }

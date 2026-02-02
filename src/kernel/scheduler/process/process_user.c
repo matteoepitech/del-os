@@ -11,6 +11,7 @@
 #include <kernel/memory/pmm/pmm.h>
 #include <utils/kstdlib/kmemory.h>
 #include <kernel/sys/gdt.h>
+#include <kernel/sys/syscall.h>
 #include <defines.h>
 
 /**
@@ -308,6 +309,9 @@ bool32_t kprocess_create_user(process_t *process, void (*entry)(void))
     }
     clone_kernel_high_half(new_pd, kernel_pd, pd_phys);
     if (map_stub_user_page(new_pd, &stub_user_pt_phys, &stub_pde) == KO_FALSE) {
+        return KO_FALSE;
+    }
+    if (map_entry_if_kernel(new_pd, (void (*)(void)) __syscall__, stub_user_pt_phys, stub_pde) == KO_FALSE) {
         return KO_FALSE;
     }
     if (map_entry_if_kernel(new_pd, entry, stub_user_pt_phys, stub_pde) == KO_FALSE) {

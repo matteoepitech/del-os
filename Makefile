@@ -28,7 +28,6 @@ OS_BIN		:=	$(BUILD_DIR)/delos.bin
 
 NASM		:=	nasm
 CC		:=	i386-elf-gcc
-# LD		:=	i386-elf-ld      Not used, -flto is not supported natively by ld
 QEMU		:=	qemu-system-i386
 
 CFLAGS		:=	-ffreestanding -m32 -g -c -Wall -Wextra \

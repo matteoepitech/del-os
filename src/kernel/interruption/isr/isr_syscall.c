@@ -24,7 +24,6 @@ isr_syscall(isr_registers_t *regs)
         return;
     }
     syscall_id = regs->_eax;
-    // TODO: the 6th argument ?
-    syscalls_array[syscall_id](regs->_ebx, regs->_ecx, regs->_edx, regs->_esi, regs->_edi, 0);
+    syscalls_array[syscall_id](regs->_ebx, regs->_ecx, regs->_edx, regs->_esi, regs->_edi);
     __builtin_unreachable();
 }
