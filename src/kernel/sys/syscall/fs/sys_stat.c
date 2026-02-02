@@ -1,6 +1,6 @@
 /*
 ** DELOS PROJECT, 2026
-** src/kernel/sys/syscall/sys_stat
+** src/kernel/sys/syscall/fs/sys_stat
 ** File description:
 ** SYSCALL stat source file
 */

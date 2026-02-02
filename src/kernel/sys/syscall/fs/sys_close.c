@@ -1,6 +1,6 @@
 /*
 ** DELOS PROJECT, 2026
-** src/kernel/sys/syscall/sys_close
+** src/kernel/sys/syscall/fs/sys_close
 ** File description:
 ** SYSCALL close source file
 */

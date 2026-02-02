@@ -1,6 +1,6 @@
 /*
 ** DELOS PROJECT, 2026
-** src/kernel/sys/syscall/sys_chdir
+** src/kernel/sys/syscall/fs/sys_chdir
 ** File description:
 ** SYSCALL chdir source file
 */

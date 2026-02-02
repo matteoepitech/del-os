@@ -1,6 +1,6 @@
 /*
 ** DELOS PROJECT, 2026
-** src/kernel/sys/syscall/sys_unlink
+** src/kernel/sys/syscall/fs/sys_unlink
 ** File description:
 ** SYSCALL unlink source file
 */

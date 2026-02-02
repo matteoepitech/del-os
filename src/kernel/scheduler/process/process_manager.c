@@ -10,6 +10,8 @@
 #include <kernel/scheduler/process.h>
 #include <kernel/memory/vmm/vmm.h>
 #include <kernel/memory/pmm/pmm.h>
+#include <kernel/fs/fd/fd.h>
+#include <kernel/fs/vfs/vfs_open.h>
 #include <utils/kstdlib/kmemory.h>
 #include <kernel/misc/panic.h>
 #include <utils/misc/print.h>
@@ -27,6 +29,36 @@ ktask_kernel_entry(void)
 {
     while (OK_TRUE);
     return;
+}
+
+/**
+ * @brief Attach file descriptors to a process. Such as stdin stdout stderr
+ *
+ * @param process    The process to attach the file descriptors
+ */
+static void
+kprocess_attach_std_streams(process_t *process)
+{
+    static const char *stdin_path = "/dev/stdin";
+    static const char *stdout_path = "/dev/stdout";
+    static const char *stderr_path = "/dev/stderr";
+    fd_t fd = KFD_ERROR;
+
+    if (process == NULL) {
+        return;
+    }
+    fd = kfd_open(stdin_path , KVFS_O_WRONLY, 0777);
+    if (fd != KFD_ERROR) {
+        process->_fds[0] = kfd_get(fd);
+    }
+    fd = kfd_open(stdout_path , KVFS_O_WRONLY, 0777);
+    if (fd != KFD_ERROR) {
+        process->_fds[1] = kfd_get(fd);
+    }
+    fd = kfd_open(stderr_path , KVFS_O_WRONLY, 0777);
+    if (fd != KFD_ERROR) {
+        process->_fds[2] = kfd_get(fd);
+    }
 }
 
 /**
@@ -62,6 +94,7 @@ kprocess_create(void (*entry)(void))
         kfree(process);
         return NULL;
     }
+    kprocess_attach_std_streams(process);
     return process;
 }
 
@@ -96,6 +129,7 @@ kprocess_create_kernel(void (*entry)(void))
     task->_process->_state = KPROCESS_ALIVE;
     task->_process->_page_directory = kvmm_page_directory;
     task->_process->_page_directory_phys = VIRT_TO_PHYS(kvmm_page_directory);
+    kprocess_attach_std_streams(process);
     return process;
 }
 
@@ -122,5 +156,6 @@ kprocess_kernel_init(void)
     kernel_process->_page_directory_phys = VIRT_TO_PHYS(kvmm_page_directory);
     kprocess_set_name("ksystem", kernel_process);
     kprocess_pid_current = 1;
+    kprocess_attach_std_streams(kernel_process);
     return kernel_process;
 }

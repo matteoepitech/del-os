@@ -1,6 +1,6 @@
 /*
 ** DELOS PROJECT, 2026
-** src/kernel/sys/syscall/sys_exit
+** src/kernel/sys/syscall/process/sys_exit
 ** File description:
 ** SYSCALL exit source file
 */

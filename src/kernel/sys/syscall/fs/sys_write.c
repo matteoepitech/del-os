@@ -1,6 +1,6 @@
 /*
 ** DELOS PROJECT, 2026
-** src/kernel/sys/syscall/sys_write
+** src/kernel/sys/syscall/fs/sys_write
 ** File description:
 ** SYSCALL write source file
 */

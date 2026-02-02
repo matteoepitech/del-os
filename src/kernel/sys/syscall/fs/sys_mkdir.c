@@ -1,8 +1,8 @@
 /*
 ** DELOS PROJECT, 2026
-** src/kernel/sys/syscall/sys_rmdir
+** src/kernel/sys/syscall/fs/sys_mkdir
 ** File description:
-** SYSCALL rmdir source file
+** SYSCALL mkdir source file
 */
 
 #include <kernel/fs/vfs/vfs_open.h>
@@ -13,7 +13,7 @@
 #include <defines.h>
 
 /**
- * @brief Syscall entry rmdir.
+ * @brief Syscall entry mkdir.
  *
  * @param a1    Path pointer (const char *)
  * @param a2    Unused
@@ -24,7 +24,7 @@
  * @return 0 on success, -1 on error.
  */
 int32_t
-ksys_rmdir(sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5)
+ksys_mkdir(sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5)
 {
-    return krmdir((const char *) a1);
+    return kmkdir((const char *) a1);
 }

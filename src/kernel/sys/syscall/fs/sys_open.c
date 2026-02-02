@@ -1,6 +1,6 @@
 /*
 ** DELOS PROJECT, 2026
-** src/kernel/sys/syscall/sys_open
+** src/kernel/sys/syscall/fs/sys_open
 ** File description:
 ** SYSCALL open source file
 */

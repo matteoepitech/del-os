@@ -12,6 +12,32 @@
 #include <types.h>
 
 /**
+ * @brief Create the dev folder in the root folder and make some devices files.
+ *
+ * @param root   The root directory to make the dev folder
+ *
+ * @return OK_TRUE if worked, KO_FALSE otherwise.
+ */
+bool32_t
+kfs_create_devices(vfs_node_t *root)
+{
+    vfs_node_t *dev_node = NULL;
+
+    if (root == NULL) {
+        return KO_FALSE;
+    }
+    root->_ops->_mkdir(root, "dev", 0755);
+    dev_node = root->_ops->_lookup(root, "dev");
+    if (dev_node == NULL) {
+        return KO_FALSE;
+    }
+    dev_node->_ops->_create(dev_node, "stdout", 0777);
+    dev_node->_ops->_create(dev_node, "stderr", 0777);
+    dev_node->_ops->_create(dev_node, "stdin", 0777);
+    return OK_TRUE;
+}
+
+/**
  * @brief Init the file system stuff of the kernel.
  *
  * @return OK_TRUE if worked, KO_FALSE otherwise.
@@ -26,6 +52,11 @@ kfs_init(void)
         return KO_FALSE;
     }
     kvfs_cwd = root;
+    if (kfs_create_devices(root) == KO_FALSE) {
+        KPRINTF_ERROR("file_system: failed to create the dev folder entirely");
+        return KO_FALSE;
+    }
+    KPRINTF_OK("file_system: dev folder created with success");
     KPRINTF_OK("file_system: successfully mounted the kernel's tmpfs");
     return OK_TRUE;
 }
