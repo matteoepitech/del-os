@@ -23,7 +23,9 @@
         #define KSYS_STAT   6
         #define KSYS_FSTAT  7
         #define KSYS_UNLINK 8
-        #define KSYS_LOG    9
+        #define KSYS_WRITE  9
+        #define KSYS_LOG    10
+        #define KSYS_LOG_NB 11
     #endif /* ifndef KERNEL_SYSCALL_LIST */
 
 /* @brief Syscall function typedef */
@@ -58,6 +60,8 @@ int32_t ksys_rmdir(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_stat(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_fstat(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_unlink(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
+int32_t ksys_write(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_log(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
+int32_t ksys_log_nb(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 
 #endif /* ifndef KERNEL_SYS_SYSCALL_H_ */

@@ -23,5 +23,5 @@
 int32_t
 ksys_unlink(sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5)
 {
-    return kvfs_unlink((const char *)a1);
+    return kvfs_unlink((const char *) a1);
 }

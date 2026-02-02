@@ -24,7 +24,18 @@
 
 static void test_debug(void)
 {
-    __syscall__(KSYS_LOG, (int32_t) "Hello team", 0, 0, 0, 0);
+    __syscall__(KSYS_LOG, (int32_t) "Creating file called test.file", 0, 0, 0, 0);
+    fd_t fd = __syscall__(KSYS_OPEN, (int32_t) "./test.file", KVFS_O_CREAT | KVFS_O_WRONLY, 0644, 0, 0);
+
+    __syscall__(KSYS_LOG, (int32_t) "Creating directory proc/", 0, 0, 0, 0);
+    __syscall__(KSYS_MKDIR, (int32_t) "/proc", 0, 0, 0, 0);
+   
+    __syscall__(KSYS_LOG_NB, fd, 0, 0, 0, 0);
+    __syscall__(KSYS_LOG, (int32_t) "Putting \"Hello World!\" on test.file", 0, 0, 0, 0);
+    __syscall__(KSYS_WRITE, fd, (int32_t) "Hello World!", sizeof("Hello World!"), 0, 0);
+
+    __syscall__(KSYS_LOG, (int32_t) "Closing the file test.file", 0, 0, 0, 0);
+    __syscall__(KSYS_CLOSE, fd, 0, 0, 0, 0);
     return;
 }
 

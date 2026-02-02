@@ -26,7 +26,6 @@
 int32_t
 ksys_exit(UNUSED sysarg_t a1, UNUSED sysarg_t a2, UNUSED sysarg_t a3, UNUSED sysarg_t a4, UNUSED sysarg_t a5)
 {
-    KPRINTF_DEBUG("Exiting process");
     ktask_exit();
     return 0;
 }

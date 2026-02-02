@@ -40,4 +40,8 @@
         #define MIN(x, y) ((x < y) ? x : y)
     #endif /* ifndef MIN */
 
+    #ifndef ARRAY_SIZE
+        #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+    #endif /* ifndef ARRAY_SIZE */
+
 #endif /* ifndef DEFINES_H_ */
