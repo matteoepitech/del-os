@@ -5,8 +5,9 @@
 ** VGA Header file
 */
 
-#include <math/2d/point.h>
 #include <kernel/memory/vmm/vmm.h>
+#include <kernel/fs/vfs/vfs.h>
+#include <math/2d/point.h>
 
 #ifndef DRIVER_VIDEO_VGA_H_
     #define DRIVER_VIDEO_VGA_H_
@@ -156,5 +157,18 @@ kvga_phys_puts_at(uint8_t x, uint8_t y, const char *string, uint8_t color);
  */
 void
 kvga_phys_fill(char c, uint8_t color);
+
+/**
+ * @brief Write data in the VGA buffer using a char device.
+ *
+ * @param node       The node of the file in the VFS
+ * @param offset     The offset pointer in the file
+ * @param buffer     The buffer where the data to write is in
+ * @param len        The number of bytes to write
+ *
+ * @return The size of the number of bytes write in the file.
+ */
+size_t
+kfs_vga_write(vfs_node_t *node, off_t *offset, const void *buffer, size_t len);
 
 #endif /* ifndef DRIVER_VIDEO_VGA_H_ */

@@ -18,6 +18,7 @@
 #include <kernel/memory/pmm/pmm.h>
 #include <kernel/shell/shell.h>
 #include <kernel/sys/syscall.h>
+#include <kernel/sys/unistd.h>
 #include <utils/misc/print.h>
 #include <kernel/fs/fd/fd.h>
 #include <defines.h>
@@ -36,6 +37,8 @@ static void test_debug(void)
 
     __syscall__(KSYS_LOG, (int32_t) "Closing the file test.file", 0, 0, 0, 0);
     __syscall__(KSYS_CLOSE, fd, 0, 0, 0, 0);
+
+    __syscall__(KSYS_WRITE, KSTDOUT_FILENO, (int32_t) "Hello Matthias", sizeof("Hello Matthias"), 0, 0);
     return;
 }
 

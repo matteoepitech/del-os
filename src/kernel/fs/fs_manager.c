@@ -12,6 +12,30 @@
 #include <types.h>
 
 /**
+ * @brief Setup the files using the VGA driver first.
+ *
+ * @param dev_node   The device node ("/dev/")
+ *
+ * @return OK_TRUE if worked, KO_FALSE otherwise.
+ */
+static bool32_t
+kfs_setup_devices(vfs_node_t *dev_node)
+{
+    vfs_node_t *tmp = NULL;
+
+    if (dev_node == NULL) {
+        return KO_FALSE;
+    }
+    tmp = dev_node->_ops->_lookup(dev_node, "stdout");
+    tmp->_ops->_write = kfs_vga_write;
+    kvfs_close(tmp);
+    tmp = dev_node->_ops->_lookup(dev_node, "stderr");
+    tmp->_ops->_write = kfs_vga_write;
+    kvfs_close(tmp);
+    return OK_TRUE;
+}
+
+/**
  * @brief Create the dev folder in the root folder and make some devices files.
  *
  * @param root   The root directory to make the dev folder
@@ -40,7 +64,7 @@ kfs_create_devices(vfs_node_t *root)
     if (dev_node->_ops->_create(dev_node, "stdin", KVFS_STAT_IFCHR | 0666) == KO_FALSE) {
         return KO_FALSE;
     }
-    return OK_TRUE;
+    return kfs_setup_devices(dev_node);
 }
 
 /**

@@ -13,6 +13,7 @@
 #include <kernel/memory/pmm/pmm.h>
 #include <utils/kstdlib/kmemory.h>
 #include <kernel/misc/panic.h>
+#include <kernel/sys/unistd.h>
 #include <utils/misc/print.h>
 #include <kernel/fs/fd/fd.h>
 #include <kernel/sys/gdt.h>
@@ -40,18 +41,25 @@ ktask_kernel_entry(void)
 static void
 kprocess_attach_std_streams(process_t *process)
 {
+    fd_t fd_stdout = KFD_ERROR;
+    fd_t fd_stderr = KFD_ERROR;
+    fd_t fd_stdin = KFD_ERROR;
+
     if (process == NULL) {
         return;
     }
-    if (kfd_open_for_process(process, "/dev/stdin", KVFS_O_RDONLY, 0) == KFD_ERROR) {
+    fd_stdin = kfd_open_for_process(process, "/dev/stdin", KVFS_O_RDONLY, 0);
+    if (fd_stdin != KSTDIN_FILENO) {
         KPRINTF_ERROR("process_manager: failed to open /dev/stdin for a process while creation");
         return;
     }
-    if (kfd_open_for_process(process, "/dev/stdout", KVFS_O_WRONLY, 0) == KFD_ERROR) {
+    fd_stdout = kfd_open_for_process(process, "/dev/stdout", KVFS_O_WRONLY, 0);
+    if (fd_stdout != KSTDOUT_FILENO) {
         KPRINTF_ERROR("process_manager: failed to open /dev/stdout for a process while creation");
         return;
     }
-    if (kfd_open_for_process(process, "/dev/stderr", KVFS_O_WRONLY, 0) == KFD_ERROR) {
+    fd_stderr = kfd_open_for_process(process, "/dev/stderr", KVFS_O_WRONLY, 0);
+    if (fd_stderr != KSTDERR_FILENO) {
         KPRINTF_ERROR("process_manager: failed to open /dev/stderr for a process while creation");
         return;
     }
