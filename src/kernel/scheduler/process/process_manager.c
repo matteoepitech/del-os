@@ -43,9 +43,18 @@ kprocess_attach_std_streams(process_t *process)
     if (process == NULL) {
         return;
     }
-    kfd_open_for_process(process, "/dev/stdin", KVFS_O_RDONLY, 0);
-    kfd_open_for_process(process, "/dev/stdout", KVFS_O_WRONLY, 0);
-    kfd_open_for_process(process, "/dev/stderr", KVFS_O_WRONLY, 0);
+    if (kfd_open_for_process(process, "/dev/stdin", KVFS_O_RDONLY, 0) == KFD_ERROR) {
+        KPRINTF_ERROR("process_manager: failed to open /dev/stdin for a process while creation");
+        return;
+    }
+    if (kfd_open_for_process(process, "/dev/stdout", KVFS_O_WRONLY, 0) == KFD_ERROR) {
+        KPRINTF_ERROR("process_manager: failed to open /dev/stdout for a process while creation");
+        return;
+    }
+    if (kfd_open_for_process(process, "/dev/stderr", KVFS_O_WRONLY, 0) == KFD_ERROR) {
+        KPRINTF_ERROR("process_manager: failed to open /dev/stderr for a process while creation");
+        return;
+    }
 }
 
 /**

@@ -29,6 +29,7 @@ kshell_cat(uint32_t argc, char *argv[])
     fd_t fd = KFD_ERROR;
     char *buffer = NULL;
     size_t len = 0;
+    size_t read_len = 0;
 
     if (argc < 2) {
         KPRINTF_ERROR("usage: cat <path>");
@@ -43,23 +44,23 @@ kshell_cat(uint32_t argc, char *argv[])
         kfd_close(fd);
         return OK_TRUE;
     }
-    if (KVFS_STAT_ISREG(stat_buffer._mode) == KO_FALSE) {
-        KPRINTF_ERROR("cat: not a file to read");
-        return OK_TRUE;
-    }
     len = stat_buffer._size;
     if (len == 0) {
+        kfd_close(fd);
         return KO_FALSE;
     }
-    buffer = kmalloc(len);
+    buffer = kmalloc(len + 1);
     if (buffer == NULL) {
         KPRINTF_ERROR("cat: failed to read, no more memory space available");
+        kfd_close(fd);
         return OK_TRUE;
     }
-    kfd_read(fd, buffer, len);
+    read_len = kfd_read(fd, buffer, len);
+    buffer[read_len] = '\0';
     KPRINTF_OK("%s", argv[1]);
     ktty_puts(buffer, VGA_TEXT_DEFAULT_COLOR);
     ktty_putc('\n', VGA_TEXT_DEFAULT_COLOR);
+    kfree(buffer);
     kfd_close(fd);
     return KO_FALSE;
 }

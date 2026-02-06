@@ -31,9 +31,15 @@ kfs_create_devices(vfs_node_t *root)
     if (dev_node == NULL) {
         return KO_FALSE;
     }
-    dev_node->_ops->_create(dev_node, "stdout", 0777);
-    dev_node->_ops->_create(dev_node, "stderr", 0777);
-    dev_node->_ops->_create(dev_node, "stdin", 0777);
+    if (dev_node->_ops->_create(dev_node, "stdout", KVFS_STAT_IFCHR | 0666) == KO_FALSE) {
+        return KO_FALSE;
+    }
+    if (dev_node->_ops->_create(dev_node, "stderr", KVFS_STAT_IFCHR | 0666) == KO_FALSE) {
+        return KO_FALSE;
+    }
+    if (dev_node->_ops->_create(dev_node, "stdin", KVFS_STAT_IFCHR | 0666) == KO_FALSE) {
+        return KO_FALSE;
+    }
     return OK_TRUE;
 }
 
