@@ -35,6 +35,12 @@ ktmpfs_write(vfs_node_t *node, off_t *offset, const void *buffer, size_t len)
     if (entry == NULL) {
         return 0;
     }
+    if (KVFS_STAT_ISCHR(entry->_stat._mode) != KO_FALSE) {
+        if (entry->_chr._write == NULL) {
+            return 0;
+        }
+        return entry->_chr._write(node, offset, buffer, len);
+    }
     if (KVFS_STAT_ISREG(entry->_stat._mode) == KO_FALSE) {
         KPRINTF_ERROR("tmpfs: cannot write on an entry which is not a file");
         return 0;

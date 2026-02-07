@@ -93,6 +93,10 @@ ktmpfs_create_entry(tmpfs_entry_t *parent, const char *name, mode_t mode)
     entry->_stat = kvfs_stat_create(mode);
     if (KVFS_STAT_ISDIR(mode)) {
         entry->_dir._child = NULL;
+    } else if (KVFS_STAT_ISCHR(mode)) {
+        entry->_chr._read = NULL;
+        entry->_chr._write = NULL;
+        entry->_chr._ctx = NULL;
     } else {
         entry->_file._data_ptr = NULL;
         entry->_file._size = 0;

@@ -6,6 +6,8 @@
 */
 
 #include <kernel/fs/vfs/vfs.h>
+#include <kernel/fs/tmpfs/tmpfs.h>
+#include <drivers/video/vga.h>
 #include <utils/misc/print.h>
 #include <kernel/fs/fs.h>
 #include <defines.h>
@@ -21,16 +23,27 @@
 static bool32_t
 kfs_setup_devices(vfs_node_t *dev_node)
 {
+    tmpfs_entry_t *entry = NULL;
     vfs_node_t *tmp = NULL;
 
     if (dev_node == NULL) {
         return KO_FALSE;
     }
     tmp = dev_node->_ops->_lookup(dev_node, "stdout");
-    tmp->_ops->_write = kfs_vga_write;
+    if (tmp == NULL || tmp->_private == NULL) {
+        kvfs_close(tmp);
+        return KO_FALSE;
+    }
+    entry = (tmpfs_entry_t *) tmp->_private;
+    entry->_chr._write = kfs_vga_write;
     kvfs_close(tmp);
     tmp = dev_node->_ops->_lookup(dev_node, "stderr");
-    tmp->_ops->_write = kfs_vga_write;
+    if (tmp == NULL || tmp->_private == NULL) {
+        kvfs_close(tmp);
+        return KO_FALSE;
+    }
+    entry = (tmpfs_entry_t *) tmp->_private;
+    entry->_chr._write = kfs_vga_write;
     kvfs_close(tmp);
     return OK_TRUE;
 }

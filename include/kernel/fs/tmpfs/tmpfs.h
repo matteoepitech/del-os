@@ -35,6 +35,11 @@ typedef struct tmpfs_entry_s {
             size_t _capacity;
         } _file;
         struct {
+            size_t (*_read)(vfs_node_t *node, off_t *offset, void *buffer, size_t len);
+            size_t (*_write)(vfs_node_t *node, off_t *offset, const void *buffer, size_t len);
+            void *_ctx;
+        } _chr;
+        struct {
             struct tmpfs_entry_s *_child;
         } _dir;
     };
