@@ -13,7 +13,7 @@
     #define KERNEL_FS_VFS_REGISTRY_H_
     
     #ifndef KVFS_REGISTRY_LEN
-        #define KVFS_REGISTRY_LEN 1
+        #define KVFS_REGISTRY_LEN 2
     #endif /* ifndef KVFS_REGISTRY_LEN */
 
 /* @brief Variable to get all available file system here */
