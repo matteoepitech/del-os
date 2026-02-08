@@ -20,13 +20,13 @@ bool32_t
 kfs_init(void);
 
 /**
- * @brief Create the dev folder in the root folder and make some devices files.
+ * @brief Create the device files in the /dev tmpfs mount.
  *
- * @param root   The root directory to make the dev folder
+ * @param dev_node   The /dev mounted directory node
  *
  * @return OK_TRUE if worked, KO_FALSE otherwise.
  */
 bool32_t
-kfs_create_devices(vfs_node_t *root);
+kfs_create_devices(vfs_node_t *dev_node);
 
 #endif /* ifndef KERNEL_FS_H_ */

@@ -6,6 +6,7 @@
 */
 
 #include <drivers/input/keyboard_char_device.h>
+#include <kernel/fs/rootfs/rootfs.h>
 #include <kernel/fs/tmpfs/tmpfs.h>
 #include <kernel/fs/vfs/vfs.h>
 #include <drivers/video/vga.h>
@@ -13,6 +14,10 @@
 #include <kernel/fs/fs.h>
 #include <defines.h>
 #include <types.h>
+
+/* @brief Rootfs symbols made using the i386-elf-objcopy tool */
+extern char _binary_rootfs_img_start[];
+extern char _binary_rootfs_img_end[];
 
 /**
  * @brief Setup the files using the VGA driver first.
@@ -58,22 +63,15 @@ kfs_setup_devices(vfs_node_t *dev_node)
 }
 
 /**
- * @brief Create the dev folder in the root folder and make some devices files.
+ * @brief Create the device files in the mounted /dev tmpfs.
  *
- * @param root   The root directory to make the dev folder
+ * @param dev_node   The /dev node
  *
  * @return OK_TRUE if worked, KO_FALSE otherwise.
  */
 bool32_t
-kfs_create_devices(vfs_node_t *root)
+kfs_create_devices(vfs_node_t *dev_node)
 {
-    vfs_node_t *dev_node = NULL;
-
-    if (root == NULL) {
-        return KO_FALSE;
-    }
-    root->_ops->_mkdir(root, "dev", 0755);
-    dev_node = root->_ops->_lookup(root, "dev");
     if (dev_node == NULL) {
         return KO_FALSE;
     }
@@ -97,18 +95,30 @@ kfs_create_devices(vfs_node_t *root)
 bool32_t
 kfs_init(void)
 {
-    vfs_node_t *root = kvfs_mount("tmpfs", "/", NULL);
+    vfs_node_t *dev_node = NULL;
+    vfs_node_t *root = NULL;
 
+    if ((size_t) (_binary_rootfs_img_end - _binary_rootfs_img_start) < sizeof(rootfs_entry_t)) {
+        KPRINTF_ERROR("file_system: invalid embedded rootfs image");
+        return KO_FALSE;
+    }
+    root = kvfs_mount("rootfs", "/", _binary_rootfs_img_start);
     if (root == NULL) {
-        KPRINTF_ERROR("file_system: failed to mount the tmpfs");
+        KPRINTF_ERROR("file_system: failed to mount the rootfs");
         return KO_FALSE;
     }
     kvfs_cwd = root;
-    if (kfs_create_devices(root) == KO_FALSE) {
-        KPRINTF_ERROR("file_system: failed to create the dev folder entirely");
+    dev_node = ktmpfs_mount("/dev", NULL);
+    if (dev_node == NULL) {
+        KPRINTF_ERROR("file_system: failed to mount tmpfs on /dev");
         return KO_FALSE;
     }
-    KPRINTF_OK("file_system: dev folder created with success");
-    KPRINTF_OK("file_system: successfully mounted the kernel's tmpfs");
+    if (kfs_create_devices(dev_node) == KO_FALSE) {
+        KPRINTF_ERROR("file_system: failed to create the dev files");
+        return KO_FALSE;
+    }
+    KPRINTF_OK("file_system: tmpfs mounted on /dev");
+    KPRINTF_OK("file_system: device files created with success");
+    KPRINTF_OK("file_system: successfully mounted the kernel's rootfs");
     return OK_TRUE;
 }
