@@ -17,6 +17,9 @@ BOOT_FILE	:=	$(BOOT_DIR)/bootsector.s
 ENTRY_FILE	:=	$(BOOT_DIR)/kernel_entry.s
 ZERO_FILE 	:=	$(BOOT_DIR)/padding_zeroes.s
 
+BOOTFS_IMG	:=	bootfs.img
+BOOTFS_OBJ	:=	$(BUILD_DIR)/bootfs.o
+
 # Recursive function to find files
 rwildcard	=	$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 SRC_C		:=	$(call rwildcard,$(SRC_DIR)/,*.c)
@@ -52,41 +55,46 @@ all: prepare $(OS_BIN)
 prepare:
 	@mkdir -p $(BUILD_DIR)
 
-# $(BUILD_DIR)/boot_sector.bin RULE : create the boot sector for the bin
+# Create the boot sector for the bin
 $(BUILD_DIR)/boot_sector.bin: $(BOOT_FILE) $(BUILD_DIR)/full_kernel.bin
 	@kernel_size_bytes=$$(wc -c < $(BUILD_DIR)/full_kernel.bin); \
 	kernel_sectors=$$((($$kernel_size_bytes + 511) / 512)); \
 	echo "Assembling bootloader (kernel sectors: $$kernel_sectors)..."; \
 	$(NASM) -I $(BOOT_DIR) -f bin $< -o $@ -DKERNEL_SECTORS=$$kernel_sectors
 
-# $(BUILD_DIR)/kernel_entry.o RULE : create the kernel entry
+# Create the kernel entry
 $(BUILD_DIR)/kernel_entry.o: $(ENTRY_FILE)
 	@echo "Assembling kernel entry..."
 	@$(NASM) -f elf32 $< -o $@
 
-# $(BUILD_DIR)/padding_zeroes.bin RULE : create the padding for the bin
+# Create the padding for the bin
 $(BUILD_DIR)/padding_zeroes.o: $(ZERO_FILE)
 	@echo "Assembling padding..."
 	@$(NASM) -f elf32 $< -o $@
 
-# Compilation des fichiers C
+# Compilation of the C files
 $(BUILD_DIR)/$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 	@echo "Compiling $< ..."
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $< -o $@
 
-# Assemblage des fichiers ASM
+# Assembly of the source files x86
 $(BUILD_DIR)/$(SRC_DIR)/%.o: $(SRC_DIR)/%.s
 	@echo "Assembling $< ..."
 	@mkdir -p $(dir $@)
 	@$(NASM) -f elf32 $< -o $@
 
-# Link du kernel
-$(BUILD_DIR)/full_kernel.bin: $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/padding_zeroes.o $(OBJ_C) $(OBJ_S)
+# Creation of the bootfs.o object using the bootfs.img made by the tool MKBOOTFS
+$(BOOTFS_OBJ): $(BOOTFS_IMG)
+	@echo "Embedding bootfs image..."
+	@i386-elf-objcopy -I binary -O elf32-i386 $< $@
+
+# Kernel link
+$(BUILD_DIR)/full_kernel.bin: $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/padding_zeroes.o $(BOOTFS_OBJ) $(OBJ_C) $(OBJ_S)
 	@echo "Linking kernel... (may take time due to LTO)"
 	@$(CC) $(LDFLAGS) -o $@ $^
 
-# $(OS_BIN) RULE : create the final $(OS_BIN) file
+# Create the final $(OS_BIN) file
 $(OS_BIN): $(BUILD_DIR)/boot_sector.bin $(BUILD_DIR)/full_kernel.bin
 	@echo "Creating OS image..."
 	@cat $^ > $@
