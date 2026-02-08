@@ -5,6 +5,8 @@
 *.img
 *.~
 
+tools/mkbootfs
+
 build/
 compile_commands.json
 .cache/
