@@ -21,4 +21,5 @@ const syscall_fn_t syscalls_array[] = {
     ksys_fstat,     // 7
     ksys_unlink,    // 8
     ksys_write,     // 9
+    ksys_read,      // 10
 };

@@ -5,8 +5,9 @@
 ** FS manager source file
 */
 
-#include <kernel/fs/vfs/vfs.h>
+#include <drivers/input/keyboard_char_device.h>
 #include <kernel/fs/tmpfs/tmpfs.h>
+#include <kernel/fs/vfs/vfs.h>
 #include <drivers/video/vga.h>
 #include <utils/misc/print.h>
 #include <kernel/fs/fs.h>
@@ -44,6 +45,14 @@ kfs_setup_devices(vfs_node_t *dev_node)
     }
     entry = (tmpfs_entry_t *) tmp->_private;
     entry->_chr._write = kfs_vga_write;
+    kvfs_close(tmp);
+    tmp = dev_node->_ops->_lookup(dev_node, "stdin");
+    if (tmp == NULL || tmp->_private == NULL) {
+        kvfs_close(tmp);
+        return KO_FALSE;
+    }
+    entry = (tmpfs_entry_t *) tmp->_private;
+    entry->_chr._read = kfs_keyboard_read;
     kvfs_close(tmp);
     return OK_TRUE;
 }

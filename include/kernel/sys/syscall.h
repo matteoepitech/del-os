@@ -24,6 +24,7 @@
         #define KSYS_FSTAT  7
         #define KSYS_UNLINK 8
         #define KSYS_WRITE  9
+        #define KSYS_READ   10
     #endif /* ifndef KERNEL_SYSCALL_LIST */
 
 /* @brief Syscall function typedef */
@@ -59,5 +60,6 @@ int32_t ksys_stat(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_fstat(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_unlink(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 int32_t ksys_write(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
+int32_t ksys_read(sysarg_t, sysarg_t, sysarg_t, sysarg_t, sysarg_t);
 
 #endif /* ifndef KERNEL_SYS_SYSCALL_H_ */

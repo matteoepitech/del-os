@@ -25,7 +25,14 @@
 
 static void test_debug(void)
 {
+    char buffer[6] = {0};
+    int32_t read_len = 0;
+
     __syscall__(KSYS_WRITE, KSTDERR_FILENO, (int32_t) "Hello World!", sizeof("Hello World!"), 0, 0);
+    read_len = __syscall__(KSYS_READ, KSTDIN_FILENO, (int32_t) buffer, 5, 0, 0);
+    if (read_len > 0) {
+        __syscall__(KSYS_WRITE, KSTDERR_FILENO, (int32_t) buffer, read_len, 0, 0);
+    }
     return;
 }
 
