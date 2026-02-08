@@ -17,8 +17,8 @@ BOOT_FILE	:=	$(BOOT_DIR)/bootsector.s
 ENTRY_FILE	:=	$(BOOT_DIR)/kernel_entry.s
 ZERO_FILE 	:=	$(BOOT_DIR)/padding_zeroes.s
 
-BOOTFS_IMG	:=	bootfs.img
-BOOTFS_OBJ	:=	$(BUILD_DIR)/bootfs.o
+ROOTFS_IMG	:=	rootfs.img
+ROOTFS_OBJ	:=	$(BUILD_DIR)/rootfs.o
 
 # Recursive function to find files
 rwildcard	=	$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
@@ -84,13 +84,18 @@ $(BUILD_DIR)/$(SRC_DIR)/%.o: $(SRC_DIR)/%.s
 	@mkdir -p $(dir $@)
 	@$(NASM) -f elf32 $< -o $@
 
-# Creation of the bootfs.o object using the bootfs.img made by the tool MKBOOTFS
-$(BOOTFS_OBJ): $(BOOTFS_IMG)
-	@echo "Embedding bootfs image..."
+$(ROOTFS_IMG):
+	@echo "Creating the rootfs.img"
+	@gcc tools/mkrootfs.c -o tools/mkrootfs
+	@./tools/mkrootfs
+
+# Creation of the rootfs.o object using the rootfs.img made by the tool MKROOTFS
+$(ROOTFS_OBJ): $(ROOTFS_IMG)
+	@echo "Embedding rootfs image..."
 	@i386-elf-objcopy -I binary -O elf32-i386 $< $@
 
 # Kernel link
-$(BUILD_DIR)/full_kernel.bin: $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/padding_zeroes.o $(BOOTFS_OBJ) $(OBJ_C) $(OBJ_S)
+$(BUILD_DIR)/full_kernel.bin: $(BUILD_DIR)/kernel_entry.o $(BUILD_DIR)/padding_zeroes.o $(ROOTFS_OBJ) $(OBJ_C) $(OBJ_S)
 	@echo "Linking kernel... (may take time due to LTO)"
 	@$(CC) $(LDFLAGS) -o $@ $^
 

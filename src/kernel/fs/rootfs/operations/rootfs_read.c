@@ -1,12 +1,12 @@
 /*
 ** DELOS PROJECT, 2025
-** src/kernel/fs/bootfs/bootfs_read
+** src/kernel/fs/rootfs/rootfs_read
 ** File description:
-** bootfs read source file
+** rootfs read source file
 */
 
 #include <utils/kstdlib/kmemory.h>
-#include <kernel/fs/bootfs/bootfs.h>
+#include <kernel/fs/rootfs/rootfs.h>
 #include <kernel/fs/vfs/vfs.h>
 #include <utils/misc/print.h>
 
@@ -21,9 +21,9 @@
  * @return The number of bytes read.
  */
 size_t
-kbootfs_read(vfs_node_t *node, off_t *offset, void *buffer, size_t len)
+krootfs_read(vfs_node_t *node, off_t *offset, void *buffer, size_t len)
 {
-    bootfs_entry_t *entry = NULL;
+    rootfs_entry_t *entry = NULL;
     uint8_t *data_ptr = NULL;
     size_t read_content = 0;
 
@@ -34,8 +34,8 @@ kbootfs_read(vfs_node_t *node, off_t *offset, void *buffer, size_t len)
     if (entry == NULL) {
         return 0;
     }
-    if (KVFS_STAT_ISREG(kbootfs_get_entry_mode(entry)) == KO_FALSE) {
-        KPRINTF_ERROR("bootfs: cannot read on an entry which is not a file");
+    if (KVFS_STAT_ISREG(krootfs_get_entry_mode(entry)) == KO_FALSE) {
+        KPRINTF_ERROR("rootfs: cannot read on an entry which is not a file");
         return 0;
     }
     if (*offset >= entry->_size) {

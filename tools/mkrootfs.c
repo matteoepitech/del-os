@@ -1,8 +1,8 @@
 /*
 ** EPITECH PROJECT, 2026
-** tools/mkbootfs
+** tools/mkrootfs
 ** File description:
-** MKBOOTFS source file
+** MKROOTFS source file
 */
 
 // This file is a tool used to make a boot file system. Like a tar, it's just a continious img.
@@ -12,9 +12,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define BOOTFS_NAME_MAX 64
-#define BOOTFS_FILE 0
-#define BOOTFS_DIR  1
+#define ROOTFS_NAME_MAX 64
+#define ROOTFS_FILE 0
+#define ROOTFS_DIR  1
 
 /*
  * @brief Boot file system entry structure.
@@ -22,11 +22,11 @@
  *        - size = The size of the entry
  *        - type = The type of the entry (VFS mode type bits)
  */
-typedef struct bootfs_entry {
-    char _name[BOOTFS_NAME_MAX];
+typedef struct rootfs_entry {
+    char _name[ROOTFS_NAME_MAX];
     uint32_t _size;
     uint32_t _type;
-} bootfs_entry_t;
+} rootfs_entry_t;
 
 /**
  * @brief Write an entry into the .img file.
@@ -40,31 +40,31 @@ typedef struct bootfs_entry {
 static void
 write_entry(FILE *out, const char *name, uint32_t type, const uint8_t *data, uint32_t size)
 {
-    bootfs_entry_t e = {0};
+    rootfs_entry_t e = {0};
 
-    strncpy(e._name, name, BOOTFS_NAME_MAX - 1);
+    strncpy(e._name, name, ROOTFS_NAME_MAX - 1);
     e._size = size;
     e._type = type;
     fwrite(&e, sizeof(e), 1, out);
-    if (type == BOOTFS_FILE && size > 0) {
+    if (type == ROOTFS_FILE && size > 0) {
         fwrite(data, size, 1, out);
     }
 }
 
 /**
- * @brief Main entry of the tool MKBOOTFS.
+ * @brief Main entry of the tool MKROOTFS.
  *
  * @return The return value of the tool.
  */
 int main(void)
 {
-    FILE *out = fopen("bootfs.img", "wb");
+    FILE *out = fopen("rootfs.img", "wb");
 
     if (out == NULL) {
         return 1;
     }
-    write_entry(out, "/bin", BOOTFS_DIR, NULL, 0);
-    FILE *f = fopen("bootfs/bin/README.md", "rb");
+    write_entry(out, "/bin", ROOTFS_DIR, NULL, 0);
+    FILE *f = fopen("rootfs/bin/README.md", "rb");
     if (f == NULL) {
         return 1;
     }
@@ -75,10 +75,10 @@ int main(void)
     uint8_t *buf = malloc(size);
     fread(buf, size, 1, f);
     fclose(f);
-    write_entry(out, "/bin/README.md", BOOTFS_FILE, buf, size);
+    write_entry(out, "/bin/README.md", ROOTFS_FILE, buf, size);
     free(buf);
 
-    bootfs_entry_t end = {0};
+    rootfs_entry_t end = {0};
     fwrite(&end, sizeof(end), 1, out);
     fclose(out);
     return 0;

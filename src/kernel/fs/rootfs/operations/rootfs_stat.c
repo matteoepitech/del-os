@@ -1,12 +1,12 @@
 /*
 ** DELOS PROJECT, 2026
-** src/kernel/fs/bootfs/bootfs_stat
+** src/kernel/fs/rootfs/rootfs_stat
 ** File description:
-** bootfs stat source file
+** rootfs stat source file
 */
 
 #include <kernel/fs/vfs/vfs_stat.h>
-#include <kernel/fs/bootfs/bootfs.h>
+#include <kernel/fs/rootfs/rootfs.h>
 #include <kernel/fs/vfs/vfs.h>
 #include <defines.h>
 #include <types.h>
@@ -20,9 +20,9 @@
  * @return OK_TRUE if worked, KO_FALSE otherwise.
  */
 bool32_t
-kbootfs_stat(vfs_node_t *node, vfs_stat_t *stat_ptr)
+krootfs_stat(vfs_node_t *node, vfs_stat_t *stat_ptr)
 {
-    bootfs_entry_t *entry = NULL;
+    rootfs_entry_t *entry = NULL;
     mode_t mode = 0;
 
     if (node == NULL || stat_ptr == NULL) {
@@ -32,7 +32,7 @@ kbootfs_stat(vfs_node_t *node, vfs_stat_t *stat_ptr)
     if (entry == NULL) {
         return KO_FALSE;
     }
-    mode = kbootfs_get_entry_mode(entry);
+    mode = krootfs_get_entry_mode(entry);
     if (KVFS_STAT_MODE_MASK_IT(mode) == 0) {
         mode |= KVFS_STAT_ISDIR(mode) ? 0555 : 0444;
     }
