@@ -6,7 +6,7 @@
 */
 
 #include <drivers/input/keyboard_char_device.h>
-#include <kernel/fs/rootfs/rootfs.h>
+#include <kernel/fs/initrd/initrd.h>
 #include <kernel/fs/tmpfs/tmpfs.h>
 #include <kernel/fs/vfs/vfs.h>
 #include <drivers/video/vga.h>
@@ -15,9 +15,20 @@
 #include <defines.h>
 #include <types.h>
 
-/* @brief Rootfs symbols made using the i386-elf-objcopy tool */
-extern char _binary_rootfs_img_start[];
-extern char _binary_rootfs_img_end[];
+/* @brief Initrd symbols made using the i386-elf-objcopy tool */
+extern char _binary_initrd_img_start[];
+extern char _binary_initrd_img_end[];
+
+/**
+ * @brief Get the size of the embedded initrd image.
+ *
+ * @return The size of the embedded initrd image in bytes.
+ */
+static size_t
+kfs_get_initrd_size(void)
+{
+    return (size_t) (_binary_initrd_img_end - _binary_initrd_img_start);
+}
 
 /**
  * @brief Setup the files using the VGA driver first.
@@ -97,28 +108,35 @@ kfs_init(void)
 {
     vfs_node_t *dev_node = NULL;
     vfs_node_t *root = NULL;
+    size_t initrd_size = 0;
 
-    if ((size_t) (_binary_rootfs_img_end - _binary_rootfs_img_start) < sizeof(rootfs_entry_t)) {
-        KPRINTF_ERROR("file_system: invalid embedded rootfs image");
+    initrd_size = kfs_get_initrd_size();
+    if (kinitrd_is_size_valid(initrd_size) == KO_FALSE) {
+        KPRINTF_ERROR("file_system: invalid embedded initrd image");
         return KO_FALSE;
     }
-    root = kvfs_mount("rootfs", "/", _binary_rootfs_img_start);
+    root = kvfs_mount("tmpfs", "/", NULL);
     if (root == NULL) {
-        KPRINTF_ERROR("file_system: failed to mount the rootfs");
+        KPRINTF_ERROR("file_system: failed to mount tmpfs on /");
         return KO_FALSE;
     }
+    KPRINTF_OK("file_system: tmpfs mounted on /");
     kvfs_cwd = root;
+    if (kinitrd_unpack(root, _binary_initrd_img_start, initrd_size) == KO_FALSE) {
+        KPRINTF_ERROR("file_system: failed to unpack initrd into /");
+        return KO_FALSE;
+    }
+    KPRINTF_OK("file_system: initrd unpacked into /");
     dev_node = ktmpfs_mount("/dev", NULL);
     if (dev_node == NULL) {
         KPRINTF_ERROR("file_system: failed to mount tmpfs on /dev");
         return KO_FALSE;
     }
+    KPRINTF_OK("file_system: tmpfs mounted on /dev");
     if (kfs_create_devices(dev_node) == KO_FALSE) {
         KPRINTF_ERROR("file_system: failed to create the dev files");
         return KO_FALSE;
     }
-    KPRINTF_OK("file_system: tmpfs mounted on /dev");
     KPRINTF_OK("file_system: device files created with success");
-    KPRINTF_OK("file_system: successfully mounted the kernel's rootfs");
     return OK_TRUE;
 }
