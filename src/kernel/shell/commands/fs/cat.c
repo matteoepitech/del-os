@@ -59,7 +59,9 @@ kshell_cat(uint32_t argc, char *argv[])
     buffer[read_len] = '\0';
     KPRINTF_OK("%s", argv[1]);
     ktty_puts(buffer, VGA_TEXT_DEFAULT_COLOR);
-    ktty_putc('\n', VGA_TEXT_DEFAULT_COLOR);
+    if (buffer[len - 1] != '\n') {
+        ktty_putc('\n', VGA_TEXT_DEFAULT_COLOR);
+    }
     kfree(buffer);
     kfd_close(fd);
     return KO_FALSE;
